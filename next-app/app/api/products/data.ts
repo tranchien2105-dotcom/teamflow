@@ -20,4 +20,9 @@ export const products: Product[] = [
         name: "Keyboard",
         price: 1200000,
     },
+    {
+        id: 4,
+        name: "Monitor",
+        price: 8000000,
+    },
 ];
