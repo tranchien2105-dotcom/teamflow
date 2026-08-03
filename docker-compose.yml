@@ -1,0 +1,46 @@
+services:
+  next:
+    image: node:22-alpine
+    container_name: teamflow-next
+    working_dir: /app
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./next-app:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
+      - mailpit
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: teamflow-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:8-alpine
+    container_name: teamflow-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: teamflow-mailpit
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_SMTP_PORT}:1025"
+      - "${MAILPIT_WEB_PORT}:8025"
+
+volumes:
+  postgres_data:
