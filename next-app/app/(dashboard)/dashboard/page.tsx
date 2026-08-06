@@ -5,27 +5,12 @@ import { getProducts } from "@/lib/product";
 
 export default function DashboardPage() {
 
-    const [products, setProducts] = useState([]);
-
-    useEffect(() => {
-
-        async function load() {
-            const data = await getProducts();
-
-            setProducts(data);
-        }
-
-        load();
-
-    }, []);
-
     return (
-        <>
-            {products.map((item: any) => (
-                <p key={item.id}>
-                    {item.name}
-                </p>
-            ))}
-        </>
+        <div className="mx-auto max-w-3xl rounded-xl bg-white p-8 shadow">
+            <h1 className="mb-8 text-3xl font-bold">Dashboard</h1>
+            <div className="space-y-6">
+                <p>Welcome to the dashboard!</p>
+            </div>
+        </div>
     );
 }

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { getProducts } from "@/lib/product";
+import { getProducts, deleteProduct } from "@/lib/product";
 
 interface Product {
     id: number;
@@ -31,9 +31,8 @@ export default function ProductPage() {
         try {
             const data = await getProducts({
                 page,
-                per_page: 10,
                 search,
-                sort_by: sortBy,
+                sort_by: sortBy || undefined,
             });
 
             setPagination(data);
@@ -51,14 +50,22 @@ export default function ProductPage() {
         loadProducts();
     };
 
-    const handleDelete = async (id: number) => {
-        if (!window.confirm("Delete this product?")) return;
+    async function handleDelete(id: number) {
+        const confirmed = window.confirm(
+            "Bạn có chắc chắn muốn xóa sản phẩm này không?"
+        );
 
-        console.log("Delete:", id);
+        if (!confirmed) return;
 
-        // await deleteProduct(id);
-        // await loadProducts();
-    };
+        try {
+            await deleteProduct(id);
+            // Reload lại danh sách
+            await loadProducts();
+        } catch (error) {
+            console.error(error);
+            alert("Delete failed");
+        }
+    }
 
     return (
         <div className="min-h-screen bg-slate-100 p-8">
@@ -181,8 +188,10 @@ export default function ProductPage() {
                                             #{item.id}
                                         </td>
 
-                                        <td className="px-6 py-4 font-medium">
-                                            {item.name}
+                                        <td className="max-w-xs px-6 py-4 font-medium">
+                                            <div className="truncate">
+                                                {item.name}
+                                            </div>
                                         </td>
 
                                         <td className="px-6 py-4 text-right">

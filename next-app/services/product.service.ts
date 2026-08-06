@@ -8,8 +8,12 @@ export interface GetProductsParams {
 }
 
 export async function getProducts(params?: GetProductsParams) {
+    const cleanParams = Object.fromEntries(
+        Object.entries(params ?? {}).filter(([, value]) => value !== undefined && value !== null && value !== "")
+    );
+
     const { data } = await clientApi.get("/products", {
-        params,
+        params: cleanParams,
     });
 
     return data;

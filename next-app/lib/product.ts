@@ -7,6 +7,15 @@ interface GetProductsParams {
     sort_by?: string;
 }
 
+interface CreateProductRequest {
+    category_id: number;
+    name: string;
+    price: number;
+    stock: number;
+    description?: string;
+    status: boolean;
+}
+
 export async function getProducts(params?: GetProductsParams) {
     const { data } = await apiClient.get("/products", {
         params,
@@ -21,7 +30,7 @@ export async function getProduct(id: number) {
     return data;
 }
 
-export async function createProduct(body: any) {
+export async function createProduct(body: CreateProductRequest) {
     const { data } = await apiClient.post("/products", body);
 
     return data;

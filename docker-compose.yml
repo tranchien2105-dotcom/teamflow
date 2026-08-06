@@ -5,6 +5,11 @@ services:
     working_dir: /app
     tty: true
     stdin_open: true
+    env_file:
+      - ./next-app/.env.local
+    environment:
+      LARAVEL_API_URL: ${LARAVEL_API_URL:-http://host.docker.internal:8080}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
     volumes:
       - ./next-app:/app
     ports:
