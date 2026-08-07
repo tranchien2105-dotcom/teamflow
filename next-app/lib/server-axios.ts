@@ -2,7 +2,7 @@ import axios from "axios";
 import { cookies } from "next/headers";
 
 function getLaravelApiBaseUrl() {
-    const baseUrl = process.env.LARAVEL_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://host.docker.internal:8080";
+    const baseUrl = process.env.LARAVEL_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://laravel:8000";
     return baseUrl.replace(/\/$/, "");
 }
 

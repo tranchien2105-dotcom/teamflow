@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 function getLaravelApiBaseUrl() {
-    const baseUrl = process.env.LARAVEL_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://host.docker.internal:8080";
+    const baseUrl = process.env.LARAVEL_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://laravel:8000";
     return baseUrl.replace(/\/$/, "");
 }
 
@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     try {
         const body = await req.json();
 
-        const url = `${getLaravelApiBaseUrl()}/api/api-login`;
+        const url = `${getLaravelApiBaseUrl()}/api/login`;
 
         const response = await fetch(url, {
             method: "POST",
