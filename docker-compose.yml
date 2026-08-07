@@ -1,6 +1,6 @@
 services:
   next:
-    image: node:22-alpine
+    image: node:22
     container_name: teamflow-next
     working_dir: /app
     tty: true
