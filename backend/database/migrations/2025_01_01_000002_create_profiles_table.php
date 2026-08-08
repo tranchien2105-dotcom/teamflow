@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -10,7 +11,12 @@ return new class extends Migration
     {
         Schema::create('profiles', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('user_id');
+
+            $table->foreignId('user_id')
+                ->constrained()
+                ->cascadeOnDelete()
+                ->unique();
+
             $table->string('full_name')->nullable();
             $table->string('title')->nullable();
             $table->text('bio')->nullable();
@@ -21,6 +27,7 @@ return new class extends Migration
             $table->string('github_url')->nullable();
             $table->string('linkedin_url')->nullable();
             $table->string('website_url')->nullable();
+
             $table->timestamps();
         });
     }

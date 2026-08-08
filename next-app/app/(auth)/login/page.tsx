@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -13,7 +14,9 @@ export default function LoginPage() {
 
   const router = useRouter();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
     if (!email || !password) {
       alert("Vui lòng nhập đầy đủ thông tin");
       return;
@@ -36,29 +39,53 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <Card className="w-full max-w-md space-y-5">
-        <h1 className="text-center text-2xl font-bold">Login</h1>
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+      <Card className="w-full max-w-md p-8 shadow-sm">
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+            Welcome back
+          </h1>
 
-        <Input
-          label="Email"
-          type="email"
-          value={email}
-          placeholder="Enter email"
-          onChange={(e) => setEmail(e.target.value)}
-        />
+          <p className="mt-2 text-sm text-gray-500">
+            Sign in to your TeamFlow account
+          </p>
+        </div>
 
-        <Input
-          label="Password"
-          type="password"
-          value={password}
-          placeholder="Enter password"
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <form onSubmit={handleLogin} className="space-y-5">
+          <Input
+            label="Email"
+            type="email"
+            value={email}
+            placeholder="Enter your email"
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-        <Button onClick={handleLogin} disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
-        </Button>
+          <Input
+            label="Password"
+            type="password"
+            value={password}
+            placeholder="Enter your password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full"
+          >
+            {loading ? "Logging in..." : "Login"}
+          </Button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-gray-500">
+          Don't have an account?{" "}
+          <a
+            href="/register"
+            className="font-medium text-blue-600 hover:text-blue-700"
+          >
+            Create account
+          </a>
+        </p>
       </Card>
     </div>
   );

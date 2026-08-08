@@ -1,4 +1,5 @@
 import Sidebar from "@/components/layout/sidebar";
+import Toast from "@/components/ui/Toast";
 
 export default function DashboardLayout({
     children,
@@ -6,20 +7,16 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div style={{ display: "flex" }}>
-            <aside
-                style={{
-                    width: 250,
-                    borderRight: "1px solid #ddd",
-                    padding: 20,
-                }}
-            >
-                <Sidebar />
-            </aside>
+        <div className="flex h-screen overflow-hidden">
+            {/* Sidebar */}
+            <Sidebar />
 
-            <main style={{ flex: 1, padding: 20 }}>
+            {/* Main Content */}
+            <main className="min-w-0 flex-1 overflow-y-auto bg-gray-50">
+                <Toast />
                 {children}
             </main>
         </div>
     );
 }
+

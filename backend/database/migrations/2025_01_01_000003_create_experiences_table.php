@@ -10,7 +10,11 @@ return new class extends Migration
     {
         Schema::create('experiences', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('user_id');
+
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->cascadeOnDelete();
+
             $table->string('company');
             $table->string('position');
             $table->string('location')->nullable();
@@ -18,6 +22,7 @@ return new class extends Migration
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->text('description')->nullable();
+
             $table->timestamps();
         });
     }

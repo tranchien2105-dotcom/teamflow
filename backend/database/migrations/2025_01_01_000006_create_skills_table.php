@@ -9,11 +9,27 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('skills', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('category_id')->nullable();
+            $table->id();
+
+            $table->foreignId('user_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
             $table->string('name');
-            $table->unsignedTinyInteger('level')->default(0);
+
+            $table->string('category');
+
+            $table->string('level');
+
+            $table->unsignedTinyInteger('years_of_experience')
+                ->default(0);
+
             $table->timestamps();
+
+            $table->unique([
+                'user_id',
+                'name',
+            ]);
         });
     }
 

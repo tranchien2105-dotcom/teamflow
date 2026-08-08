@@ -1,0 +1,166 @@
+{
+  "source": "Tran-Minh-Chien-SoftwareEngineer(8).pdf",
+  "note": "Recovery seed data reconstructed from the CV. Existing database IDs are intentionally omitted.",
+  "user": {
+    "name": "Tran Minh Chien",
+    "email": "tranchien021@gmail.com",
+    "phone": "0349521656",
+    "location": "Q3, Ho Chi Minh City, Vietnam",
+    "github": "https://github.com/tranchien2105-dotcom"
+  },
+  "schools": [
+    {
+      "name": "University of Information Technology (UIT)",
+      "short_name": "UIT",
+      "location": "Thu Duc, Ho Chi Minh City, Vietnam"
+    }
+  ],
+  "education": [
+    {
+      "school": "University of Information Technology (UIT)",
+      "degree": "Bachelor's Degree",
+      "field_of_study": "Computer Network & Communication",
+      "start_date": "2018-09-01",
+      "end_date": "2023-11-01",
+      "description": null
+    }
+  ],
+  "experiences": [
+    {
+      "company": "FinViet",
+      "position": "Software Engineer",
+      "location": null,
+      "employment_type": "Full-time",
+      "start_date": "2024-08-01",
+      "end_date": "2025-12-01",
+      "description": "Developed enterprise backend systems and APIs for DMS platforms. Implemented and maintained product features based on customer requirements. Optimized SQL queries and backend processing performance. Worked with Apiato architecture and modular backend systems. Participated in API testing, debugging, and system integration. Technologies: PHP, Laravel, Apiato, PostgreSQL, Navicat, Docker, Postman, ChatGPT, Gemini, DeepSeek."
+    },
+    {
+      "company": "Software Shinway",
+      "position": "Software Engineer",
+      "location": null,
+      "employment_type": "Full-time",
+      "start_date": "2022-03-01",
+      "end_date": "2024-07-01",
+      "description": "Developed and maintained backend features based on business requirements. Built and customized PDF/Excel export systems. Improved existing modules and optimized application workflows. Collaborated with team members to maintain scalable and maintainable codebases. Technologies: PHP, Laravel, Yii, PostgreSQL, MySQL, Vuejs, JavaScript, HTML, CSS."
+    }
+  ],
+  "skills": [
+    {
+      "name": "PHP",
+      "category": "Backend"
+    },
+    {
+      "name": "Laravel",
+      "category": "Backend"
+    },
+    {
+      "name": "Apiato",
+      "category": "Backend"
+    },
+    {
+      "name": "RESTful API",
+      "category": "Backend"
+    },
+    {
+      "name": "MVC Architecture",
+      "category": "Backend"
+    },
+    {
+      "name": "JWT",
+      "category": "Backend"
+    },
+    {
+      "name": "Passport",
+      "category": "Backend"
+    },
+    {
+      "name": "Queue",
+      "category": "Backend"
+    },
+    {
+      "name": "Job",
+      "category": "Backend"
+    },
+    {
+      "name": "Laravel Event",
+      "category": "Backend"
+    },
+    {
+      "name": "Redis",
+      "category": "Database"
+    },
+    {
+      "name": "Cache",
+      "category": "Database"
+    },
+    {
+      "name": "Database Design & Optimization",
+      "category": "Database"
+    },
+    {
+      "name": "MySQL",
+      "category": "Database"
+    },
+    {
+      "name": "PostgreSQL",
+      "category": "Database"
+    },
+    {
+      "name": "Vuejs",
+      "category": "Frontend"
+    },
+    {
+      "name": "HTML",
+      "category": "Frontend"
+    },
+    {
+      "name": "CSS",
+      "category": "Frontend"
+    },
+    {
+      "name": "JavaScript",
+      "category": "Frontend"
+    },
+    {
+      "name": "jQuery",
+      "category": "Frontend"
+    },
+    {
+      "name": "Ajax",
+      "category": "Frontend"
+    },
+    {
+      "name": "Docker",
+      "category": "DevOps"
+    },
+    {
+      "name": "Git",
+      "category": "Tools"
+    },
+    {
+      "name": "Navicat",
+      "category": "Tools"
+    },
+    {
+      "name": "GitKraken",
+      "category": "Tools"
+    },
+    {
+      "name": "Linux Environment",
+      "category": "Tools"
+    },
+    {
+      "name": "XAMPP",
+      "category": "Tools"
+    },
+    {
+      "name": "ChatGPT",
+      "category": "Tools"
+    },
+    {
+      "name": "GitHub Copilot",
+      "category": "Tools"
+    }
+  ]
+}

@@ -9,12 +9,22 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('educations', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('user_id');
-            $table->string('school');
-            $table->string('degree')->nullable();
-            $table->date('start_date')->nullable();
+            $table->id();
+
+            $table->foreignId('user_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            $table->foreignId('school_id')
+                ->constrained('schools')
+                ->restrictOnDelete();
+
+            $table->string('degree');
+            $table->string('field_of_study');
+            $table->date('start_date');
             $table->date('end_date')->nullable();
+            $table->text('description')->nullable();
+
             $table->timestamps();
         });
     }
