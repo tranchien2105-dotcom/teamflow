@@ -23,3 +23,474 @@ body {
     background: #c7d2fe;
     color: #0f172a;
 }
+
+/* =========================================================
+   CV BASE
+========================================================= */
+
+.cv-page {
+    width: 100%;
+}
+
+.cv-document {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+
+    background: white;
+    color: #111111;
+
+    /*
+     * Times New Roman giúp tiếng Việt
+     * hiển thị ổn định khi export PDF.
+     */
+    font-family: "Times New Roman", Times, serif;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.cv-document h1,
+.cv-document h2,
+.cv-document h3,
+.cv-document h4,
+.cv-document p,
+.cv-document span,
+.cv-document li,
+.cv-document a {
+    font-family: "Times New Roman", Times, serif;
+}
+
+.cv-document a {
+    color: inherit;
+}
+
+/* =========================================================
+   CV SECTION
+========================================================= */
+
+.cv-section {
+    width: 100%;
+}
+
+.cv-section-title {
+    margin-bottom: 14px;
+
+    border-bottom: 1.5px solid #111111;
+    padding-bottom: 8px;
+
+    font-family: "Times New Roman", Times, serif;
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 1.2;
+
+    text-transform: uppercase;
+    letter-spacing: 0;
+}
+
+.cv-entry {
+    width: 100%;
+}
+
+.cv-entry+.cv-entry {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid #e5e5e5;
+}
+
+/* =========================================================
+   MODERN TEMPLATE
+========================================================= */
+
+.cv-modern-section {
+    width: 100%;
+
+    break-inside: auto;
+    page-break-inside: auto;
+}
+
+.cv-modern-title {
+    position: relative;
+
+    margin: 0;
+    padding-bottom: 8px;
+
+    border-bottom: 1px solid #e2e8f0;
+
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.2;
+
+    color: #0f172a;
+
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+}
+
+/*
+ * Accent line dưới section title
+ */
+.cv-modern-title::after {
+    content: "";
+
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+
+    width: 42px;
+    height: 2px;
+
+    background: #0f172a;
+}
+
+/* =========================================================
+   MODERN SIDEBAR
+========================================================= */
+
+.cv-modern-sidebar {
+    min-width: 0;
+
+    background: #0f172a;
+    color: white;
+
+    break-inside: auto;
+    page-break-inside: auto;
+}
+
+/* =========================================================
+   MODERN SKILLS
+========================================================= */
+
+.cv-modern-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.cv-modern-skill {
+    display: inline-flex;
+    align-items: center;
+
+    max-width: 100%;
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+
+    background: rgba(255, 255, 255, 0.07);
+
+    padding: 4px 7px;
+
+    color: #cbd5e1;
+
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.2;
+
+    white-space: nowrap;
+}
+
+/* =========================================================
+   MODERN PROJECT
+========================================================= */
+
+.cv-modern-project {
+    break-inside: avoid;
+    page-break-inside: avoid;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+
+    background: #ffffff;
+}
+
+.cv-modern-project:hover {
+    border-color: #cbd5e1;
+}
+
+/* =========================================================
+   MODERN EXPERIENCE
+========================================================= */
+
+.cv-modern-experience {
+    position: relative;
+
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+/* =========================================================
+   PRINT / CV PDF
+========================================================= */
+
+@media print {
+    @page {
+        size: A4;
+        margin: 12mm 14mm;
+    }
+
+    /* =====================================================
+       BODY
+    ====================================================== */
+
+    html,
+    body {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        background: white !important;
+        overflow: visible !important;
+    }
+
+    body.cv-printing {
+        color: #000 !important;
+        overflow: visible !important;
+    }
+
+    /* =====================================================
+       CV FONT
+    ====================================================== */
+
+    body.cv-printing .cv-document,
+    body.cv-printing .cv-document h1,
+    body.cv-printing .cv-document h2,
+    body.cv-printing .cv-document h3,
+    body.cv-printing .cv-document h4,
+    body.cv-printing .cv-document p,
+    body.cv-printing .cv-document span,
+    body.cv-printing .cv-document li,
+    body.cv-printing .cv-document a {
+        font-family: "Times New Roman", Times, serif !important;
+    }
+
+    body.cv-printing .cv-document {
+        width: 100% !important;
+        max-width: none !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        font-size: 16px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* =====================================================
+       HIDE APP UI
+    ====================================================== */
+
+    body.cv-printing aside:not(.cv-modern-sidebar),
+    body.cv-printing nav,
+    body.cv-printing footer,
+    body.cv-printing [role="navigation"],
+    body.cv-printing .sidebar,
+    body.cv-printing .app-sidebar,
+    body.cv-printing .no-print {
+        display: none !important;
+    }
+
+    /* =====================================================
+       ONLY SHOW CV
+    ====================================================== */
+
+    body.cv-printing * {
+        visibility: hidden !important;
+    }
+
+    body.cv-printing .cv-page,
+    body.cv-printing .cv-page * {
+        visibility: visible !important;
+    }
+
+    /* =====================================================
+       RESET CONTAINERS
+    ====================================================== */
+
+    body.cv-printing * {
+        max-height: none !important;
+    }
+
+    body.cv-printing .cv-page,
+    body.cv-printing main,
+    body.cv-printing main>*,
+    body.cv-printing [class*="overflow"],
+    body.cv-printing [class*="h-screen"],
+    body.cv-printing [class*="min-h"],
+    body.cv-printing [class*="max-h"] {
+        overflow: visible !important;
+        max-height: none !important;
+    }
+
+    /* =====================================================
+       CV PAGE
+    ====================================================== */
+
+    body.cv-printing .cv-page {
+        position: static !important;
+
+        display: block !important;
+
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0 !important;
+
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        overflow: visible !important;
+    }
+
+    /* =====================================================
+       CV DOCUMENT
+    ====================================================== */
+
+    body.cv-printing .cv-document {
+        position: static !important;
+
+        display: block !important;
+
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0 !important;
+
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        border: none !important;
+        border-radius: 0 !important;
+
+        box-shadow: none !important;
+
+        background: white !important;
+
+        overflow: visible !important;
+    }
+
+    /* =====================================================
+       SECTIONS
+    ====================================================== */
+
+    body.cv-printing .cv-section,
+    body.cv-printing .cv-modern-section {
+        width: 100% !important;
+
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+
+        overflow: visible !important;
+
+        break-before: auto !important;
+        break-after: auto !important;
+        break-inside: auto !important;
+
+        page-break-before: auto !important;
+        page-break-after: auto !important;
+        page-break-inside: auto !important;
+    }
+
+    /* =====================================================
+       ENTRIES
+    ====================================================== */
+
+    body.cv-printing .cv-entry,
+    body.cv-printing .cv-modern-experience,
+    body.cv-printing .cv-modern-project {
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+
+        overflow: visible !important;
+
+        break-before: auto !important;
+        break-after: auto !important;
+        break-inside: auto !important;
+
+        page-break-before: auto !important;
+        page-break-after: auto !important;
+        page-break-inside: auto !important;
+    }
+
+    /* =====================================================
+       GENERIC SECTION
+    ====================================================== */
+
+    body.cv-printing section {
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+
+        overflow: visible !important;
+
+        break-before: auto !important;
+        break-after: auto !important;
+        break-inside: auto !important;
+
+        page-break-before: auto !important;
+        page-break-after: auto !important;
+        page-break-inside: auto !important;
+    }
+
+    /* =====================================================
+       HEADINGS
+    ====================================================== */
+
+    body.cv-printing h1,
+    body.cv-printing h2,
+    body.cv-printing h3,
+    body.cv-printing h4 {
+        break-before: auto !important;
+        break-after: avoid !important;
+        break-inside: avoid !important;
+
+        page-break-before: auto !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    /* =====================================================
+       LINKS
+    ====================================================== */
+
+    body.cv-printing a {
+        color: inherit !important;
+        text-decoration: none !important;
+    }
+
+    /* =====================================================
+       IMAGES
+    ====================================================== */
+
+    body.cv-printing img {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+
+    /* =====================================================
+       COLORS
+    ====================================================== */
+
+    body.cv-printing .cv-modern-sidebar {
+        print-color-adjust: exact !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+
+    /* =====================================================
+       BOX SIZING
+    ====================================================== */
+
+    body.cv-printing *,
+    body.cv-printing *::before,
+    body.cv-printing *::after {
+        box-sizing: border-box !important;
+    }
+}

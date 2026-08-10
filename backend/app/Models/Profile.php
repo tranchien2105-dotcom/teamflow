@@ -17,6 +17,7 @@ class Profile extends Model
         'bio',
         'avatar_url',
         'cv_url',
+        'cv_template',
         'phone',
         'address',
         'github_url',

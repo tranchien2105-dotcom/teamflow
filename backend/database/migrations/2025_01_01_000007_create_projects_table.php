@@ -10,7 +10,11 @@ return new class extends Migration
     {
         Schema::create('projects', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('user_id');
+
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->cascadeOnDelete();
+
             $table->string('title');
             $table->string('slug')->unique();
             $table->text('summary')->nullable();
@@ -22,6 +26,7 @@ return new class extends Migration
             $table->string('status')->default('draft');
             $table->date('started_at')->nullable();
             $table->date('completed_at')->nullable();
+
             $table->timestamps();
         });
     }

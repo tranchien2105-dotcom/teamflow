@@ -12,7 +12,20 @@ return new class extends Migration
             $table->uuid('project_id');
             $table->uuid('technology_id');
 
-            $table->primary(['project_id', 'technology_id']);
+            $table->primary([
+                'project_id',
+                'technology_id',
+            ]);
+
+            $table->foreign('project_id')
+                ->references('id')
+                ->on('projects')
+                ->cascadeOnDelete();
+
+            $table->foreign('technology_id')
+                ->references('id')
+                ->on('technologies')
+                ->cascadeOnDelete();
         });
     }
 

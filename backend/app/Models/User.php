@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Sanctum\HasApiTokens;
 
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'role',])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -50,5 +50,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function skills(): HasMany
     {
         return $this->hasMany(Skill::class);
+    }
+
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
+    }
+    public function blogPosts(): HasMany
+    {
+        return $this->hasMany(BlogPost::class);
     }
 }
