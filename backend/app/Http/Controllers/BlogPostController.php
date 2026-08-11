@@ -13,8 +13,16 @@ class BlogPostController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $posts = BlogPost::query()
-            ->where('user_id', $request->user()->id)
+        $query = BlogPost::query();
+
+        if ($request->user()->role !== 'admin') {
+            $query->where(
+                'user_id',
+                $request->user()->id
+            );
+        }
+
+        $posts = $query
             ->latest()
             ->paginate(10);
 
@@ -29,8 +37,9 @@ class BlogPostController extends Controller
         ]);
     }
 
-    public function store(StoreBlogPostRequest $request): JsonResponse
-    {
+    public function store(
+        StoreBlogPostRequest $request
+    ): JsonResponse {
         $post = BlogPost::create([
             ...$request->validated(),
             'user_id' => $request->user()->id,
@@ -43,12 +52,11 @@ class BlogPostController extends Controller
     }
 
     public function show(
-        Request $request,
         BlogPost $blogPost
     ): JsonResponse {
-        abort_unless(
-            $blogPost->user_id === $request->user()->id,
-            404
+        $this->authorize(
+            'view',
+            $blogPost
         );
 
         return response()->json([
@@ -60,26 +68,29 @@ class BlogPostController extends Controller
         UpdateBlogPostRequest $request,
         BlogPost $blogPost
     ): JsonResponse {
-        abort_unless(
-            $blogPost->user_id === $request->user()->id,
-            404
+        $this->authorize(
+            'update',
+            $blogPost
         );
 
-        $blogPost->update($request->validated());
+        $blogPost->update(
+            $request->validated()
+        );
 
         return response()->json([
             'message' => 'Blog post updated successfully.',
-            'data' => new BlogPostResource($blogPost->fresh()),
+            'data' => new BlogPostResource(
+                $blogPost->fresh()
+            ),
         ]);
     }
 
     public function destroy(
-        Request $request,
         BlogPost $blogPost
     ): JsonResponse {
-        abort_unless(
-            $blogPost->user_id === $request->user()->id,
-            404
+        $this->authorize(
+            'delete',
+            $blogPost
         );
 
         $blogPost->delete();

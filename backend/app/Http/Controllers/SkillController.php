@@ -9,14 +9,28 @@ use Illuminate\Http\Request;
 class SkillController extends Controller
 {
     /**
-     * Get current user's skills.
+     * Get skills.
+     *
+     * Admin: all users
+     * User: authenticated user only
      */
     public function index(
         Request $request
     ): JsonResponse {
-        $skills = $request->user()
-            ->skills()
-            ->orderBy('years_of_experience','DESC')
+        $query = Skill::query();
+
+        if ($request->user()->role !== 'admin') {
+            $query->where(
+                'user_id',
+                $request->user()->id
+            );
+        }
+
+        $skills = $query
+            ->orderBy(
+                'years_of_experience',
+                'DESC'
+            )
             ->get();
 
         return response()->json($skills);
@@ -69,11 +83,10 @@ class SkillController extends Controller
      * Get one skill.
      */
     public function show(
-        Request $request,
         Skill $skill
     ): JsonResponse {
-        $this->authorizeSkill(
-            $request,
+        $this->authorize(
+            'view',
             $skill
         );
 
@@ -87,8 +100,8 @@ class SkillController extends Controller
         Request $request,
         Skill $skill
     ): JsonResponse {
-        $this->authorizeSkill(
-            $request,
+        $this->authorize(
+            'update',
             $skill
         );
 
@@ -130,11 +143,10 @@ class SkillController extends Controller
      * Delete a skill.
      */
     public function destroy(
-        Request $request,
         Skill $skill
     ): JsonResponse {
-        $this->authorizeSkill(
-            $request,
+        $this->authorize(
+            'delete',
             $skill
         );
 
@@ -143,19 +155,5 @@ class SkillController extends Controller
         return response()->json([
             'message' => 'Skill deleted successfully.',
         ]);
-    }
-
-    /**
-     * Make sure the skill belongs
-     * to the authenticated user.
-     */
-    private function authorizeSkill(
-        Request $request,
-        Skill $skill
-    ): void {
-        abort_unless(
-            $skill->user_id === $request->user()->id,
-            403
-        );
     }
 }

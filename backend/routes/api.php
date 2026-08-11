@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\AdminUserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CvController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ExperienceController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\TestController;
@@ -94,4 +96,20 @@ Route::middleware('auth:sanctum')->group(function () {
     // Create CV
     Route::get('/cv', [CvController::class, 'show']);
     Route::put('/cv/template', [CvController::class, 'updateTemplate']);
+
+    // Admin User
+    Route::middleware('admin')
+        ->prefix('admin')
+        ->group(function () {
+            Route::get('/users', [AdminUserController::class, 'index']);
+            Route::get('/users/{user}', [AdminUserController::class, 'show']);
+
+            Route::patch(
+                '/users/{user}/role',
+                [AdminUserController::class, 'changeRole']
+            );
+        });
+
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 });

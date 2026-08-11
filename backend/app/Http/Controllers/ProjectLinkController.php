@@ -15,10 +15,7 @@ class ProjectLinkController extends Controller
         Request $request,
         Project $project
     ): JsonResponse {
-        abort_unless(
-            $project->user_id === $request->user()->id,
-            404
-        );
+        $this->authorize('view', $project);
 
         return response()->json([
             'data' => $project->links()->get(),
@@ -29,10 +26,7 @@ class ProjectLinkController extends Controller
         StoreProjectLinkRequest $request,
         Project $project
     ): JsonResponse {
-        abort_unless(
-            $project->user_id === $request->user()->id,
-            404
-        );
+        $this->authorize('update', $project);
 
         $link = $project->links()->create(
             $request->validated()
@@ -49,10 +43,7 @@ class ProjectLinkController extends Controller
         Project $project,
         ProjectLink $link
     ): JsonResponse {
-        abort_unless(
-            $project->user_id === $request->user()->id,
-            404
-        );
+        $this->authorize('update', $project);
 
         abort_unless(
             $link->project_id === $project->id,
@@ -72,10 +63,7 @@ class ProjectLinkController extends Controller
         Project $project,
         ProjectLink $link
     ): JsonResponse {
-        abort_unless(
-            $project->user_id === $request->user()->id,
-            404
-        );
+        $this->authorize('delete', $project);
 
         abort_unless(
             $link->project_id === $project->id,

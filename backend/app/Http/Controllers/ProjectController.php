@@ -3,15 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProjectRequest;
+use App\Http\Requests\SyncProjectTechnologyRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\SyncProjectTechnologyRequest;
 
 class ProjectController extends Controller
 {
+    /**
+     * Display a listing of the user's projects.
+     */
     public function index(Request $request): JsonResponse
     {
         $projects = Project::query()
@@ -30,6 +33,9 @@ class ProjectController extends Controller
         ]);
     }
 
+    /**
+     * Store a newly created project.
+     */
     public function store(StoreProjectRequest $request): JsonResponse
     {
         $project = Project::create([
@@ -43,12 +49,14 @@ class ProjectController extends Controller
         ], 201);
     }
 
-    public function show(Request $request, Project $project): JsonResponse
-    {
-        abort_unless(
-            $project->user_id === $request->user()->id,
-            404
-        );
+    /**
+     * Display the specified project.
+     */
+    public function show(
+        Request $request,
+        Project $project
+    ): JsonResponse {
+        $this->authorize('view', $project);
 
         $project->load([
             'features',
@@ -61,14 +69,15 @@ class ProjectController extends Controller
             'data' => new ProjectResource($project),
         ]);
     }
+
+    /**
+     * Update the specified project.
+     */
     public function update(
         UpdateProjectRequest $request,
         Project $project
     ): JsonResponse {
-        abort_unless(
-            $project->user_id === $request->user()->id,
-            404
-        );
+        $this->authorize('update', $project);
 
         $project->update($request->validated());
 
@@ -78,14 +87,14 @@ class ProjectController extends Controller
         ]);
     }
 
+    /**
+     * Remove the specified project.
+     */
     public function destroy(
         Request $request,
         Project $project
     ): JsonResponse {
-        abort_unless(
-            $project->user_id === $request->user()->id,
-            404
-        );
+        $this->authorize('delete', $project);
 
         $project->delete();
 
@@ -94,14 +103,14 @@ class ProjectController extends Controller
         ]);
     }
 
+    /**
+     * Sync technologies for the specified project.
+     */
     public function syncTechnologies(
         SyncProjectTechnologyRequest $request,
         Project $project
     ): JsonResponse {
-        abort_unless(
-            $project->user_id === $request->user()->id,
-            404
-        );
+        $this->authorize('update', $project);
 
         if ($request->has('technology_ids')) {
             $project->technologies()->sync(

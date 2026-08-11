@@ -12,14 +12,23 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 class EducationController extends Controller
 {
     /**
-     * Get authenticated user's educations.
+     * Get educations.
+     *
+     * Admin: all users
+     * User: authenticated user only
      */
     public function index(): AnonymousResourceCollection
     {
-        $educations = request()
-            ->user()
-            ->educations()
-            ->with('school')
+        $user = request()->user();
+
+        $query = Education::query()
+            ->with('school');
+
+        if ($user->role !== 'admin') {
+            $query->where('user_id', $user->id);
+        }
+
+        $educations = $query
             ->latest('start_date')
             ->get();
 
@@ -29,7 +38,7 @@ class EducationController extends Controller
     }
 
     /**
-     * Create education.
+     * Create education for authenticated user.
      */
     public function store(
         StoreEducationRequest $request
@@ -50,7 +59,7 @@ class EducationController extends Controller
     public function show(
         Education $education
     ): EducationResource {
-        $this->authorizeEducation($education);
+        $this->authorize('view', $education);
 
         $education->load('school');
 
@@ -64,7 +73,7 @@ class EducationController extends Controller
         UpdateEducationRequest $request,
         Education $education
     ): EducationResource {
-        $this->authorizeEducation($education);
+        $this->authorize('update', $education);
 
         $education->update(
             $request->validated()
@@ -81,26 +90,12 @@ class EducationController extends Controller
     public function destroy(
         Education $education
     ): JsonResponse {
-        $this->authorizeEducation($education);
+        $this->authorize('delete', $education);
 
         $education->delete();
 
         return response()->json([
             'message' => 'Education deleted successfully.',
         ]);
-    }
-
-    /**
-     * Make sure the education belongs
-     * to the authenticated user.
-     */
-    private function authorizeEducation(
-        Education $education
-    ): void {
-        abort_unless(
-            $education->user_id === request()->user()->id,
-            403,
-            'Unauthorized.'
-        );
     }
 }

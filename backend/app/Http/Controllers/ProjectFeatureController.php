@@ -11,14 +11,14 @@ use Illuminate\Http\Request;
 
 class ProjectFeatureController extends Controller
 {
+    /**
+     * Display all features of a project.
+     */
     public function index(
         Request $request,
         Project $project
     ): JsonResponse {
-        abort_unless(
-            $project->user_id === $request->user()->id,
-            404
-        );
+        $this->authorize('view', $project);
 
         $features = $project->features()->get();
 
@@ -27,14 +27,14 @@ class ProjectFeatureController extends Controller
         ]);
     }
 
+    /**
+     * Store a new feature for a project.
+     */
     public function store(
         StoreProjectFeatureRequest $request,
         Project $project
     ): JsonResponse {
-        abort_unless(
-            $project->user_id === $request->user()->id,
-            404
-        );
+        $this->authorize('update', $project);
 
         $feature = $project->features()->create(
             $request->validated()
@@ -46,15 +46,15 @@ class ProjectFeatureController extends Controller
         ], 201);
     }
 
+    /**
+     * Update a project feature.
+     */
     public function update(
         UpdateProjectFeatureRequest $request,
         Project $project,
         ProjectFeature $feature
     ): JsonResponse {
-        abort_unless(
-            $project->user_id === $request->user()->id,
-            404
-        );
+        $this->authorize('update', $project);
 
         abort_unless(
             $feature->project_id === $project->id,
@@ -69,15 +69,15 @@ class ProjectFeatureController extends Controller
         ]);
     }
 
+    /**
+     * Delete a project feature.
+     */
     public function destroy(
         Request $request,
         Project $project,
         ProjectFeature $feature
     ): JsonResponse {
-        abort_unless(
-            $project->user_id === $request->user()->id,
-            404
-        );
+        $this->authorize('delete', $project);
 
         abort_unless(
             $feature->project_id === $project->id,

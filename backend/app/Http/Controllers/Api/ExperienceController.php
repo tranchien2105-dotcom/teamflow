@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreExperienceRequest;
 use App\Http\Requests\UpdateExperienceRequest;
+use App\Models\Experience;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -12,13 +13,19 @@ class ExperienceController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $experiences = $request->user()
-            ->experiences()
+        $query = Experience::query();
+
+        if ($request->user()->role !== 'admin') {
+            $query->where('user_id', $request->user()->id);
+        }
+
+        $experiences = $query
             ->latest('start_date')
             ->get()
             ->map(function ($experience) {
                 return [
                     'id' => $experience->id,
+                    'user_id' => $experience->user_id,
                     'company' => $experience->company,
                     'position' => $experience->position,
                     'location' => $experience->location,
@@ -43,11 +50,13 @@ class ExperienceController extends Controller
         return response()->json($experience, 201);
     }
 
-    public function show(Request $request, string $id): JsonResponse
-    {
-        $experience = $request->user()
-            ->experiences()
-            ->findOrFail($id);
+    public function show(
+        Request $request,
+        string $id
+    ): JsonResponse {
+        $experience = Experience::findOrFail($id);
+
+        $this->authorize('view', $experience);
 
         return response()->json($experience);
     }
@@ -56,20 +65,26 @@ class ExperienceController extends Controller
         UpdateExperienceRequest $request,
         string $id
     ): JsonResponse {
-        $experience = $request->user()
-            ->experiences()
-            ->findOrFail($id);
+        $experience = Experience::findOrFail($id);
 
-        $experience->update($request->validated());
+        $this->authorize('update', $experience);
 
-        return response()->json($experience->fresh());
+        $experience->update(
+            $request->validated()
+        );
+
+        return response()->json(
+            $experience->fresh()
+        );
     }
 
-    public function destroy(Request $request, string $id): JsonResponse
-    {
-        $experience = $request->user()
-            ->experiences()
-            ->findOrFail($id);
+    public function destroy(
+        Request $request,
+        string $id
+    ): JsonResponse {
+        $experience = Experience::findOrFail($id);
+
+        $this->authorize('delete', $experience);
 
         $experience->delete();
 

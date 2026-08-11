@@ -15,10 +15,7 @@ class ProjectImageController extends Controller
         Request $request,
         Project $project
     ): JsonResponse {
-        abort_unless(
-            $project->user_id === $request->user()->id,
-            404
-        );
+        $this->authorize('view', $project);
 
         return response()->json([
             'data' => $project->images()->get(),
@@ -29,10 +26,7 @@ class ProjectImageController extends Controller
         StoreProjectImageRequest $request,
         Project $project
     ): JsonResponse {
-        abort_unless(
-            $project->user_id === $request->user()->id,
-            404
-        );
+        $this->authorize('update', $project);
 
         $image = $project->images()->create(
             $request->validated()
@@ -49,10 +43,7 @@ class ProjectImageController extends Controller
         Project $project,
         ProjectImage $image
     ): JsonResponse {
-        abort_unless(
-            $project->user_id === $request->user()->id,
-            404
-        );
+        $this->authorize('update', $project);
 
         abort_unless(
             $image->project_id === $project->id,
@@ -72,10 +63,7 @@ class ProjectImageController extends Controller
         Project $project,
         ProjectImage $image
     ): JsonResponse {
-        abort_unless(
-            $project->user_id === $request->user()->id,
-            404
-        );
+        $this->authorize('delete', $project);
 
         abort_unless(
             $image->project_id === $project->id,

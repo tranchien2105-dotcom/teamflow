@@ -12,7 +12,7 @@ export default function DashboardLayout({
             <Sidebar />
 
             {/* Main Content */}
-            <main className="min-w-0 flex-1 overflow-y-auto bg-gray-50">
+            <main className="min-w-0 flex-1 overflow-y-auto">
                 <Toast />
                 {children}
             </main>
