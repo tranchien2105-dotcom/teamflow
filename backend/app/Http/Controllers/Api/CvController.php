@@ -9,8 +9,10 @@ use App\Models\Experience;
 use App\Models\Profile;
 use App\Models\Project;
 use App\Models\Skill;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CvController extends Controller
 {
@@ -19,12 +21,25 @@ class CvController extends Controller
      */
     public function show(Request $request): JsonResponse
     {
+        /** @var FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+
         $user = $request->user();
 
         $profile = Profile::where(
             'user_id',
             $user->id
         )->first();
+
+        if ($profile) {
+            $profile->avatar_url = $profile->avatar_url
+                ? $disk->url($profile->avatar_url)
+                : null;
+
+            $profile->cv_url = $profile->cv_url
+                ? $disk->url($profile->cv_url)
+                : null;
+        }
 
         $skills = Skill::where(
             'user_id',
@@ -79,6 +94,9 @@ class CvController extends Controller
         ]);
     }
 
+    /**
+     * Update user's CV template.
+     */
     public function updateTemplate(Request $request): JsonResponse
     {
         $validated = $request->validate([

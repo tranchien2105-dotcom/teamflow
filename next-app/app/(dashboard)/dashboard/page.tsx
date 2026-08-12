@@ -241,16 +241,6 @@ export default function DashboardPage() {
                 {/* Stats */}
 
                 <div>
-                    <div className="mb-4">
-                        <h2 className="text-lg font-semibold text-gray-900">
-                            Overview
-                        </h2>
-
-                        <p className="mt-1 text-sm text-gray-500">
-                            Your portfolio statistics at a glance.
-                        </p>
-                    </div>
-
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                         {statCards.map((stat) => (
                             <StatCard

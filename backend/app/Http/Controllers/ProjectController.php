@@ -9,6 +9,7 @@ use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProjectController extends Controller
 {
@@ -36,10 +37,18 @@ class ProjectController extends Controller
     /**
      * Store a newly created project.
      */
-    public function store(StoreProjectRequest $request): JsonResponse
-    {
+    public function store(
+        StoreProjectRequest $request
+    ): JsonResponse {
+        $data = $request->validated();
+
+        if ($request->hasFile('cover_image')) {
+            $data['cover_image'] = $request->file('cover_image')
+                ->store('projects/covers', 'public');
+        }
+
         $project = Project::create([
-            ...$request->validated(),
+            ...$data,
             'user_id' => $request->user()->id,
         ]);
 
@@ -79,11 +88,26 @@ class ProjectController extends Controller
     ): JsonResponse {
         $this->authorize('update', $project);
 
-        $project->update($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('cover_image')) {
+            if ($project->cover_image) {
+                Storage::disk('public')->delete(
+                    $project->cover_image
+                );
+            }
+
+            $data['cover_image'] = $request->file('cover_image')
+                ->store('projects/covers', 'public');
+        }
+
+        $project->update($data);
 
         return response()->json([
             'message' => 'Project updated successfully.',
-            'data' => new ProjectResource($project->fresh()),
+            'data' => new ProjectResource(
+                $project->fresh()
+            ),
         ]);
     }
 
@@ -95,6 +119,12 @@ class ProjectController extends Controller
         Project $project
     ): JsonResponse {
         $this->authorize('delete', $project);
+
+        if ($project->cover_image) {
+            Storage::disk('public')->delete(
+                $project->cover_image
+            );
+        }
 
         $project->delete();
 

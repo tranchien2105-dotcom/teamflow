@@ -7,6 +7,12 @@ type RouteContext = {
     }>;
 };
 
+/*
+|--------------------------------------------------------------------------
+| GET /api/projects/[id]
+|--------------------------------------------------------------------------
+*/
+
 export async function GET(
     request: NextRequest,
     context: RouteContext
@@ -41,6 +47,12 @@ export async function GET(
     }
 }
 
+/*
+|--------------------------------------------------------------------------
+| PUT /api/projects/[id]
+|--------------------------------------------------------------------------
+*/
+
 export async function PUT(
     request: NextRequest,
     context: RouteContext
@@ -48,13 +60,36 @@ export async function PUT(
     try {
         const { id } = await context.params;
 
-        const body = await request.json();
+        /*
+        |--------------------------------------------------------------------------
+        | Read multipart/form-data
+        |--------------------------------------------------------------------------
+        */
+
+        const formData = await request.formData();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Create server API client
+        |--------------------------------------------------------------------------
+        */
 
         const api = await createServerApi();
 
-        const { data } = await api.put(
+        /*
+        |--------------------------------------------------------------------------
+        | Forward FormData to Laravel
+        |--------------------------------------------------------------------------
+        */
+
+        const { data } = await api.post(
             `/api/projects/${id}`,
-            body
+            formData,
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            }
         );
 
         return NextResponse.json(data);
@@ -82,6 +117,12 @@ export async function PUT(
     }
 }
 
+/*
+|--------------------------------------------------------------------------
+| DELETE /api/projects/[id]
+|--------------------------------------------------------------------------
+*/
+
 export async function DELETE(
     request: NextRequest,
     context: RouteContext
@@ -107,6 +148,45 @@ export async function DELETE(
                 message:
                     error?.response?.data?.message ??
                     "Failed to delete project.",
+            },
+            {
+                status:
+                    error?.response?.status ?? 500,
+            }
+        );
+    }
+}
+
+export async function POST(
+    request: NextRequest,
+    context: RouteContext
+) {
+    try {
+        const { id } = await context.params;
+
+        const formData = await request.formData();
+
+        const api = await createServerApi();
+
+        const { data } = await api.post(
+            `/api/projects/${id}`,
+            formData
+        );
+
+        return NextResponse.json(data);
+    } catch (error: any) {
+        console.error(
+            "POST /api/projects/[id] error:",
+            error?.response?.data ?? error
+        );
+
+        return NextResponse.json(
+            {
+                message:
+                    error?.response?.data?.message ??
+                    "Failed to update project.",
+                errors:
+                    error?.response?.data?.errors ?? null,
             },
             {
                 status:

@@ -16,13 +16,13 @@ interface ProjectImagesProps {
 }
 
 interface ImageFormData {
-    image_url: string;
+    file: File | null;
     caption: string;
     sort_order: number;
 }
 
 const initialForm: ImageFormData = {
-    image_url: "",
+    file: null,
     caption: "",
     sort_order: 0,
 };
@@ -41,11 +41,17 @@ export default function ProjectImages({
     const [form, setForm] =
         useState<ImageFormData>(initialForm);
 
+    const [previewUrl, setPreviewUrl] =
+        useState<string | null>(null);
+
     const [editingId, setEditingId] =
         useState<string | null>(null);
 
     const [editingForm, setEditingForm] =
         useState<ImageFormData>(initialForm);
+
+    const [editingPreviewUrl, setEditingPreviewUrl] =
+        useState<string | null>(null);
 
     const [isLoading, setIsLoading] =
         useState(true);
@@ -86,8 +92,7 @@ export default function ProjectImages({
                     }
                 );
 
-                const data =
-                    await response.json();
+                const data = await response.json();
 
                 if (!response.ok) {
                     throw new Error(
@@ -125,20 +130,109 @@ export default function ProjectImages({
 
     /*
     |--------------------------------------------------------------------------
+    | File Validation
+    |--------------------------------------------------------------------------
+    */
+
+    function validateImageFile(
+        file: File
+    ): boolean {
+        if (!file.type.startsWith("image/")) {
+            toast.error(
+                "Please select a valid image file."
+            );
+
+            return false;
+        }
+
+        const maxSize =
+            5 * 1024 * 1024;
+
+        if (file.size > maxSize) {
+            toast.error(
+                "Image size must be less than 5MB."
+            );
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Handle Add File
+    |--------------------------------------------------------------------------
+    */
+
+    function handleFileChange(
+        event: React.ChangeEvent<HTMLInputElement>
+    ) {
+        const file =
+            event.target.files?.[0];
+
+        if (!file) {
+            return;
+        }
+
+        if (!validateImageFile(file)) {
+            event.target.value = "";
+            return;
+        }
+
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+        }
+
+        const objectUrl =
+            URL.createObjectURL(file);
+
+        setForm((current) => ({
+            ...current,
+            file,
+        }));
+
+        setPreviewUrl(objectUrl);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Remove Selected File
+    |--------------------------------------------------------------------------
+    */
+
+    function removeSelectedFile() {
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+        }
+
+        setPreviewUrl(null);
+
+        setForm((current) => ({
+            ...current,
+            file: null,
+        }));
+
+        const input =
+            document.getElementById(
+                "project-image-file"
+            ) as HTMLInputElement | null;
+
+        if (input) {
+            input.value = "";
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Add Image
     |--------------------------------------------------------------------------
     */
 
     async function handleAddImage() {
-        const imageUrl =
-            form.image_url.trim();
-
-        const caption =
-            form.caption.trim();
-
-        if (!imageUrl) {
+        if (!form.file) {
             toast.error(
-                "Please enter an image URL."
+                "Please select an image."
             );
 
             return;
@@ -148,21 +242,29 @@ export default function ProjectImages({
         setError(null);
 
         try {
+            const formData =
+                new FormData();
+
+            formData.append(
+                "image",
+                form.file
+            );
+
+            formData.append(
+                "caption",
+                form.caption.trim()
+            );
+
+            formData.append(
+                "sort_order",
+                String(form.sort_order)
+            );
+
             const response = await fetch(
                 `/api/projects/${projectId}/images`,
                 {
                     method: "POST",
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-                    },
-                    body: JSON.stringify({
-                        image_url: imageUrl,
-                        caption:
-                            caption || null,
-                        sort_order:
-                            form.sort_order,
-                    }),
+                    body: formData,
                 }
             );
 
@@ -190,11 +292,28 @@ export default function ProjectImages({
                 )
             );
 
+            if (previewUrl) {
+                URL.revokeObjectURL(
+                    previewUrl
+                );
+            }
+
+            setPreviewUrl(null);
+
             setForm({
                 ...initialForm,
                 sort_order:
                     images.length + 1,
             });
+
+            const input =
+                document.getElementById(
+                    "project-image-file"
+                ) as HTMLInputElement | null;
+
+            if (input) {
+                input.value = "";
+            }
 
             toast.success(
                 "Project image added successfully."
@@ -225,13 +344,54 @@ export default function ProjectImages({
         setEditingId(image.id);
 
         setEditingForm({
-            image_url:
-                image.image_url,
+            file: null,
             caption:
                 image.caption ?? "",
             sort_order:
                 image.sort_order,
         });
+
+        setEditingPreviewUrl(null);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Edit File Change
+    |--------------------------------------------------------------------------
+    */
+
+    function handleEditingFileChange(
+        event: React.ChangeEvent<HTMLInputElement>
+    ) {
+        const file =
+            event.target.files?.[0];
+
+        if (!file) {
+            return;
+        }
+
+        if (!validateImageFile(file)) {
+            event.target.value = "";
+            return;
+        }
+
+        if (editingPreviewUrl) {
+            URL.revokeObjectURL(
+                editingPreviewUrl
+            );
+        }
+
+        const objectUrl =
+            URL.createObjectURL(file);
+
+        setEditingForm((current) => ({
+            ...current,
+            file,
+        }));
+
+        setEditingPreviewUrl(
+            objectUrl
+        );
     }
 
     /*
@@ -241,7 +401,15 @@ export default function ProjectImages({
     */
 
     function cancelEditing() {
+        if (editingPreviewUrl) {
+            URL.revokeObjectURL(
+                editingPreviewUrl
+            );
+        }
+
         setEditingId(null);
+
+        setEditingPreviewUrl(null);
 
         setEditingForm(
             initialForm
@@ -257,40 +425,56 @@ export default function ProjectImages({
     async function handleUpdateImage(
         imageId: string
     ) {
-        const imageUrl =
-            editingForm.image_url.trim();
-
         const caption =
             editingForm.caption.trim();
-
-        if (!imageUrl) {
-            toast.error(
-                "Image URL is required."
-            );
-
-            return;
-        }
 
         setIsUpdating(true);
         setError(null);
 
         try {
+            const formData =
+                new FormData();
+
+            /*
+             * Only append image when
+             * user selected a new file.
+             */
+            if (editingForm.file) {
+                formData.append(
+                    "image",
+                    editingForm.file
+                );
+            }
+
+            formData.append(
+                "caption",
+                caption
+            );
+
+            formData.append(
+                "sort_order",
+                String(
+                    editingForm.sort_order
+                )
+            );
+
+            /*
+             * Laravel PUT + multipart/form-data
+             * can be problematic depending on
+             * the request stack.
+             *
+             * Use POST + _method=PUT.
+             */
+            formData.append(
+                "_method",
+                "PUT"
+            );
+
             const response = await fetch(
                 `/api/projects/${projectId}/images/${imageId}`,
                 {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-                    },
-                    body: JSON.stringify({
-                        image_url:
-                            imageUrl,
-                        caption:
-                            caption || null,
-                        sort_order:
-                            editingForm.sort_order,
-                    }),
+                    method: "POST",
+                    body: formData,
                 }
             );
 
@@ -310,8 +494,7 @@ export default function ProjectImages({
             setImages((current) =>
                 current
                     .map((image) =>
-                        image.id ===
-                            imageId
+                        image.id === imageId
                             ? updatedImage
                             : image
                     )
@@ -432,7 +615,7 @@ export default function ProjectImages({
                         </h2>
 
                         <p className="mt-1 text-sm text-slate-500">
-                            Add screenshots and
+                            Upload screenshots and
                             other images related
                             to this project.
                         </p>
@@ -478,54 +661,60 @@ export default function ProjectImages({
                         </h3>
 
                         <p className="mt-1 text-xs text-slate-500">
-                            Add a screenshot,
-                            preview, or any
-                            other image related
-                            to this project.
+                            Select an image directly
+                            from your computer.
+                            Maximum size: 5MB.
                         </p>
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-[1fr_1fr_100px_auto]">
-                        {/* Image URL */}
+                    <div className="grid gap-5 lg:grid-cols-[1fr_1fr_100px_auto]">
+                        {/* =================================================
+                            File
+                        ================================================== */}
 
                         <div>
                             <label
-                                htmlFor="project-image-url"
+                                htmlFor="project-image-file"
                                 className="mb-2 block text-xs font-medium text-slate-600"
                             >
-                                Image URL
+                                Image File
                             </label>
 
                             <input
-                                id="project-image-url"
-                                type="url"
-                                value={
-                                    form.image_url
+                                id="project-image-file"
+                                type="file"
+                                accept="image/*"
+                                onChange={
+                                    handleFileChange
                                 }
-                                onChange={(
-                                    event
-                                ) =>
-                                    setForm(
-                                        (
-                                            current
-                                        ) => ({
-                                            ...current,
-                                            image_url:
-                                                event
-                                                    .target
-                                                    .value,
-                                        })
-                                    )
-                                }
-                                placeholder="https://example.com/image.png"
                                 disabled={
                                     isAdding
                                 }
-                                className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 disabled:bg-slate-100"
+                                className="block w-full cursor-pointer rounded-lg border border-slate-200 bg-white text-sm text-slate-600 file:mr-4 file:border-0 file:bg-slate-900 file:px-4 file:py-2.5 file:text-xs file:font-semibold file:text-white hover:file:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                             />
+
+                            {form.file && (
+                                <div className="mt-2 flex items-center justify-between gap-2">
+                                    <p className="truncate text-xs text-slate-500">
+                                        {form.file.name}
+                                    </p>
+
+                                    <button
+                                        type="button"
+                                        onClick={
+                                            removeSelectedFile
+                                        }
+                                        className="shrink-0 text-xs font-semibold text-red-500 hover:text-red-600"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
-                        {/* Caption */}
+                        {/* =================================================
+                            Caption
+                        ================================================== */}
 
                         <div>
                             <label
@@ -564,7 +753,9 @@ export default function ProjectImages({
                             />
                         </div>
 
-                        {/* Sort Order */}
+                        {/* =================================================
+                            Sort Order
+                        ================================================== */}
 
                         <div>
                             <label
@@ -605,7 +796,9 @@ export default function ProjectImages({
                             />
                         </div>
 
-                        {/* Add Button */}
+                        {/* =================================================
+                            Add Button
+                        ================================================== */}
 
                         <div className="flex items-end">
                             <button
@@ -614,16 +807,49 @@ export default function ProjectImages({
                                     handleAddImage
                                 }
                                 disabled={
-                                    isAdding
+                                    isAdding ||
+                                    !form.file
                                 }
                                 className="h-10 w-full rounded-lg bg-slate-900 px-4 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 {isAdding
-                                    ? "Adding..."
+                                    ? "Uploading..."
                                     : "+ Add"}
                             </button>
                         </div>
                     </div>
+
+                    {/* =================================================
+                        Upload Preview
+                    ================================================== */}
+
+                    {previewUrl && (
+                        <div className="mt-5 overflow-hidden rounded-xl border border-slate-200 bg-white">
+                            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                                <p className="text-xs font-semibold text-slate-600">
+                                    Preview
+                                </p>
+
+                                <button
+                                    type="button"
+                                    onClick={
+                                        removeSelectedFile
+                                    }
+                                    className="text-xs font-semibold text-slate-500 hover:text-red-600"
+                                >
+                                    Clear
+                                </button>
+                            </div>
+
+                            <div className="relative aspect-video bg-slate-100">
+                                <img
+                                    src={previewUrl}
+                                    alt="Selected image preview"
+                                    className="h-full w-full object-contain"
+                                />
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* =================================================
@@ -668,7 +894,7 @@ export default function ProjectImages({
                             </h3>
 
                             <p className="mx-auto mt-1 max-w-sm text-xs leading-5 text-slate-500">
-                                Add screenshots,
+                                Upload screenshots,
                                 previews, or
                                 other images
                                 to showcase
@@ -749,43 +975,49 @@ export default function ProjectImages({
                                                 ================================= */
 
                                                 <div className="space-y-4">
-                                                    {/* URL */}
+                                                    {/* File */}
 
                                                     <div>
                                                         <label
-                                                            htmlFor={`edit-image-url-${image.id}`}
+                                                            htmlFor={`edit-image-file-${image.id}`}
                                                             className="mb-2 block text-xs font-medium text-slate-600"
                                                         >
-                                                            Image URL
+                                                            Replace Image
                                                         </label>
 
                                                         <input
-                                                            id={`edit-image-url-${image.id}`}
-                                                            type="url"
-                                                            value={
-                                                                editingForm.image_url
-                                                            }
-                                                            onChange={(
-                                                                event
-                                                            ) =>
-                                                                setEditingForm(
-                                                                    (
-                                                                        current
-                                                                    ) => ({
-                                                                        ...current,
-                                                                        image_url:
-                                                                            event
-                                                                                .target
-                                                                                .value,
-                                                                    })
-                                                                )
+                                                            id={`edit-image-file-${image.id}`}
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={
+                                                                handleEditingFileChange
                                                             }
                                                             disabled={
                                                                 isUpdating
                                                             }
-                                                            className="h-10 w-full rounded-lg border border-slate-200 px-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100 disabled:bg-slate-100"
+                                                            className="block w-full cursor-pointer rounded-lg border border-slate-200 bg-white text-xs text-slate-600 file:mr-3 file:border-0 file:bg-slate-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                                                         />
+
+                                                        <p className="mt-1 text-[11px] text-slate-400">
+                                                            Leave empty to keep the current image.
+                                                        </p>
                                                     </div>
+
+                                                    {/* Edit Preview */}
+
+                                                    {editingPreviewUrl && (
+                                                        <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
+                                                            <div className="aspect-video">
+                                                                <img
+                                                                    src={
+                                                                        editingPreviewUrl
+                                                                    }
+                                                                    alt="New image preview"
+                                                                    className="h-full w-full object-contain"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    )}
 
                                                     {/* Caption */}
 
@@ -916,9 +1148,7 @@ export default function ProjectImages({
                                                         </p>
 
                                                         <p className="mt-1 truncate text-xs text-slate-400">
-                                                            {
-                                                                image.image_url
-                                                            }
+                                                            {image.image_url}
                                                         </p>
                                                     </div>
 

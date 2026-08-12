@@ -16,8 +16,6 @@ type FormData = {
     full_name: string;
     title: string;
     bio: string;
-    avatar_url: string;
-    cv_url: string;
     phone: string;
     address: string;
     github_url: string;
@@ -29,8 +27,6 @@ const emptyForm: FormData = {
     full_name: "",
     title: "",
     bio: "",
-    avatar_url: "",
-    cv_url: "",
     phone: "",
     address: "",
     github_url: "",
@@ -43,8 +39,19 @@ export default function EditProfileForm({
     onCancel,
     onSuccess,
 }: EditProfileFormProps) {
-    const [form, setForm] =
-        useState<FormData>(emptyForm);
+    const [form, setForm] = useState<FormData>(emptyForm);
+
+    const [avatarFile, setAvatarFile] = useState<File | null>(
+        null
+    );
+
+    const [cvFile, setCvFile] = useState<File | null>(null);
+
+    const [avatarPreview, setAvatarPreview] = useState<
+        string | null
+    >(null);
+
+    const [cvName, setCvName] = useState<string | null>(null);
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -57,22 +64,31 @@ export default function EditProfileForm({
                 full_name: profile.full_name ?? "",
                 title: profile.title ?? "",
                 bio: profile.bio ?? "",
-                avatar_url:
-                    profile.avatar_url ?? "",
-                cv_url: profile.cv_url ?? "",
                 phone: profile.phone ?? "",
                 address: profile.address ?? "",
-                github_url:
-                    profile.github_url ?? "",
-                linkedin_url:
-                    profile.linkedin_url ?? "",
-                website_url:
-                    profile.website_url ?? "",
+                github_url: profile.github_url ?? "",
+                linkedin_url: profile.linkedin_url ?? "",
+                website_url: profile.website_url ?? "",
             });
+
+            setAvatarFile(null);
+            setCvFile(null);
+
+            setAvatarPreview(profile.avatar_url ?? null);
+
+            setCvName(
+                profile.cv_url
+                    ? profile.cv_url.split("/").pop() ??
+                    "Current CV"
+                    : null
+            );
         } else {
-            setForm({
-                ...emptyForm,
-            });
+            setForm(emptyForm);
+
+            setAvatarFile(null);
+            setCvFile(null);
+            setAvatarPreview(null);
+            setCvName(null);
         }
 
         setError("");
@@ -91,8 +107,37 @@ export default function EditProfileForm({
         }));
     };
 
+    const handleAvatarChange = (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = e.target.files?.[0];
+
+        if (!file) {
+            return;
+        }
+
+        setAvatarFile(file);
+
+        const previewUrl = URL.createObjectURL(file);
+
+        setAvatarPreview(previewUrl);
+    };
+
+    const handleCvChange = (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = e.target.files?.[0];
+
+        if (!file) {
+            return;
+        }
+
+        setCvFile(file);
+        setCvName(file.name);
+    };
+
     const handleSubmit = async (
-        e: React.FormEvent
+        e: React.FormEvent<HTMLFormElement>
     ) => {
         e.preventDefault();
 
@@ -100,48 +145,75 @@ export default function EditProfileForm({
         setLoading(true);
 
         try {
-            const payload = {
-                full_name:
-                    form.full_name || undefined,
+            const formData = new FormData();
 
-                title:
-                    form.title || undefined,
+            if (form.full_name) {
+                formData.append(
+                    "full_name",
+                    form.full_name
+                );
+            }
 
-                bio:
-                    form.bio || undefined,
+            if (form.title) {
+                formData.append("title", form.title);
+            }
 
-                avatar_url:
-                    form.avatar_url || undefined,
+            if (form.bio) {
+                formData.append("bio", form.bio);
+            }
 
-                cv_url:
-                    form.cv_url || undefined,
+            if (form.phone) {
+                formData.append("phone", form.phone);
+            }
 
-                phone:
-                    form.phone || undefined,
+            if (form.address) {
+                formData.append(
+                    "address",
+                    form.address
+                );
+            }
 
-                address:
-                    form.address || undefined,
+            if (form.github_url) {
+                formData.append(
+                    "github_url",
+                    form.github_url
+                );
+            }
 
-                github_url:
-                    form.github_url || undefined,
+            if (form.linkedin_url) {
+                formData.append(
+                    "linkedin_url",
+                    form.linkedin_url
+                );
+            }
 
-                linkedin_url:
-                    form.linkedin_url || undefined,
+            if (form.website_url) {
+                formData.append(
+                    "website_url",
+                    form.website_url
+                );
+            }
 
-                website_url:
-                    form.website_url || undefined,
-            };
+            if (avatarFile) {
+                formData.append(
+                    "avatar",
+                    avatarFile
+                );
+            }
+
+            if (cvFile) {
+                formData.append("cv", cvFile);
+            }
+
+            if (isEdit) {
+                formData.append("_method", "PUT");
+            }
 
             const response = isEdit
-                ? await profileService.update(
-                      payload
-                  )
-                : await profileService.create(
-                      payload
-                  );
+                ? await profileService.update(formData)
+                : await profileService.create(formData);
 
-            const updatedProfile =
-                response.profile as Profile;
+            const updatedProfile = response.profile;
 
             toast.success(
                 isEdit
@@ -150,10 +222,10 @@ export default function EditProfileForm({
             );
 
             onSuccess(updatedProfile);
-        } catch (error) {
+        } catch (err) {
             console.error(
                 "Failed to save profile:",
-                error
+                err
             );
 
             const message =
@@ -191,7 +263,8 @@ export default function EditProfileForm({
                     className="
                         rounded-lg
                         border border-gray-300
-                        bg-white px-4 py-2
+                        bg-white
+                        px-4 py-2
                         text-sm font-medium
                         text-gray-700
                         transition
@@ -401,9 +474,7 @@ export default function EditProfileForm({
                                 id="github_url"
                                 name="github_url"
                                 type="url"
-                                value={
-                                    form.github_url
-                                }
+                                value={form.github_url}
                                 onChange={handleChange}
                                 placeholder="https://github.com/username"
                                 className="
@@ -433,9 +504,7 @@ export default function EditProfileForm({
                                 id="linkedin_url"
                                 name="linkedin_url"
                                 type="url"
-                                value={
-                                    form.linkedin_url
-                                }
+                                value={form.linkedin_url}
                                 onChange={handleChange}
                                 placeholder="https://linkedin.com/in/username"
                                 className="
@@ -465,9 +534,7 @@ export default function EditProfileForm({
                                 id="website_url"
                                 name="website_url"
                                 type="url"
-                                value={
-                                    form.website_url
-                                }
+                                value={form.website_url}
                                 onChange={handleChange}
                                 placeholder="https://example.com"
                                 className="
@@ -486,7 +553,7 @@ export default function EditProfileForm({
                     </div>
                 </div>
 
-                {/* Files / URLs */}
+                {/* Profile Files */}
                 <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
                     <div className="border-b border-gray-100 px-6 py-4">
                         <h2 className="font-semibold text-gray-900">
@@ -498,68 +565,121 @@ export default function EditProfileForm({
                         {/* Avatar */}
                         <div>
                             <label
-                                htmlFor="avatar_url"
+                                htmlFor="avatar"
                                 className="mb-1.5 block text-sm font-medium text-gray-700"
                             >
-                                Avatar URL
+                                Avatar
                             </label>
 
-                            <input
-                                id="avatar_url"
-                                name="avatar_url"
-                                type="url"
-                                value={
-                                    form.avatar_url
-                                }
-                                onChange={handleChange}
-                                placeholder="https://..."
-                                className="
-                                    h-10 w-full
-                                    rounded-lg
-                                    border border-gray-200
-                                    px-3 text-sm
-                                    outline-none
-                                    transition
-                                    focus:border-primary
-                                    focus:ring-2
-                                    focus:ring-primary/20
-                                "
-                            />
+                            <div className="flex items-center gap-4">
+                                {avatarPreview ? (
+                                    <img
+                                        src={avatarPreview}
+                                        alt="Avatar preview"
+                                        className="h-20 w-20 shrink-0 rounded-full border border-gray-200 object-cover"
+                                    />
+                                ) : (
+                                    <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-dashed border-gray-300 bg-gray-50 text-xs text-gray-400">
+                                        No avatar
+                                    </div>
+                                )}
+
+                                <div className="min-w-0 flex-1">
+                                    <input
+                                        id="avatar"
+                                        name="avatar"
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        onChange={
+                                            handleAvatarChange
+                                        }
+                                        className="
+                                            block w-full
+                                            text-sm text-gray-500
+                                            file:mr-4
+                                            file:rounded-lg
+                                            file:border-0
+                                            file:bg-gray-100
+                                            file:px-4
+                                            file:py-2
+                                            file:text-sm
+                                            file:font-medium
+                                            file:text-gray-700
+                                            hover:file:bg-gray-200
+                                        "
+                                    />
+
+                                    <p className="mt-1 text-xs text-gray-400">
+                                        JPG, PNG or WebP.
+                                        Maximum 5MB.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
                         {/* CV */}
                         <div>
                             <label
-                                htmlFor="cv_url"
+                                htmlFor="cv"
                                 className="mb-1.5 block text-sm font-medium text-gray-700"
                             >
-                                CV URL
+                                CV
                             </label>
 
+                            {cvName && (
+                                <div className="mb-3 flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                                    <div className="min-w-0">
+                                        <p className="truncate text-sm font-medium text-gray-700">
+                                            {cvName}
+                                        </p>
+
+                                        {profile?.cv_url &&
+                                            !cvFile && (
+                                                <a
+                                                    href={
+                                                        profile.cv_url
+                                                    }
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-xs text-primary hover:underline"
+                                                >
+                                                    View current CV
+                                                </a>
+                                            )}
+                                    </div>
+                                </div>
+                            )}
+
                             <input
-                                id="cv_url"
-                                name="cv_url"
-                                type="url"
-                                value={form.cv_url}
-                                onChange={handleChange}
-                                placeholder="https://..."
+                                id="cv"
+                                name="cv"
+                                type="file"
+                                accept="application/pdf"
+                                onChange={handleCvChange}
                                 className="
-                                    h-10 w-full
-                                    rounded-lg
-                                    border border-gray-200
-                                    px-3 text-sm
-                                    outline-none
-                                    transition
-                                    focus:border-primary
-                                    focus:ring-2
-                                    focus:ring-primary/20
+                                    block w-full
+                                    text-sm text-gray-500
+                                    file:mr-4
+                                    file:rounded-lg
+                                    file:border-0
+                                    file:bg-gray-100
+                                    file:px-4
+                                    file:py-2
+                                    file:text-sm
+                                    file:font-medium
+                                    file:text-gray-700
+                                    hover:file:bg-gray-200
                                 "
                             />
+
+                            <p className="mt-1 text-xs text-gray-400">
+                                PDF only. Maximum 10MB.
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                {/* Footer */}
+                {/* Actions */}
                 <div className="flex justify-end gap-3">
                     <button
                         type="button"
@@ -568,7 +688,8 @@ export default function EditProfileForm({
                         className="
                             rounded-lg
                             border border-gray-200
-                            bg-white px-5 py-2.5
+                            bg-white
+                            px-5 py-2.5
                             text-sm font-medium
                             text-gray-700
                             hover:bg-gray-50
@@ -583,7 +704,8 @@ export default function EditProfileForm({
                         disabled={loading}
                         className="
                             rounded-lg
-                            bg-primary px-5 py-2.5
+                            bg-primary
+                            px-5 py-2.5
                             text-sm font-medium
                             text-primary-foreground
                             shadow-sm
@@ -595,8 +717,8 @@ export default function EditProfileForm({
                         {loading
                             ? "Saving..."
                             : isEdit
-                              ? "Update Profile"
-                              : "Create Profile"}
+                                ? "Update Profile"
+                                : "Create Profile"}
                     </button>
                 </div>
             </form>

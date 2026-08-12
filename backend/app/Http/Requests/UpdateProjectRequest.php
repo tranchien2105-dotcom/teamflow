@@ -17,27 +17,71 @@ class UpdateProjectRequest extends FormRequest
         $project = $this->route('project');
 
         return [
-            'title' => ['sometimes', 'string', 'max:255'],
+            'title' => [
+                'sometimes',
+                'string',
+                'max:255',
+            ],
 
             'slug' => [
                 'sometimes',
                 'string',
                 'max:255',
-                Rule::unique('projects', 'slug')->ignore($project->id),
+                Rule::unique('projects', 'slug')
+                    ->ignore($project->id),
             ],
 
-            'summary' => ['nullable', 'string'],
-            'content' => ['nullable', 'string'],
+            'summary' => [
+                'nullable',
+                'string',
+            ],
 
-            'cover_image' => ['nullable', 'string', 'max:255'],
-            'github_url' => ['nullable', 'url', 'max:255'],
-            'demo_url' => ['nullable', 'url', 'max:255'],
+            'content' => [
+                'nullable',
+                'string',
+            ],
 
-            'featured' => ['nullable', 'boolean'],
-            'status' => ['nullable', 'string', 'in:draft,active,archived,completed'],
+            'cover_image' => [
+                'nullable',
+                'file',
+                'image',
+                'mimes:jpeg,jpg,png,webp',
+                'max:5120',
+            ],
 
-            'started_at' => ['nullable', 'date'],
-            'completed_at' => ['nullable', 'date', 'after_or_equal:started_at'],
+            'github_url' => [
+                'nullable',
+                'url',
+                'max:255',
+            ],
+
+            'demo_url' => [
+                'nullable',
+                'url',
+                'max:255',
+            ],
+
+            'featured' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'status' => [
+                'nullable',
+                'string',
+                'in:draft,active,archived,completed',
+            ],
+
+            'started_at' => [
+                'nullable',
+                'date',
+            ],
+
+            'completed_at' => [
+                'nullable',
+                'date',
+                'after_or_equal:started_at',
+            ],
         ];
     }
 }

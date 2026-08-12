@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { getProject } from "@/services/project-service";
 
 import ProjectHero from "@/components/projects/project-hero";
@@ -11,6 +13,7 @@ interface ProjectDetailPageProps {
         id: string;
     }>;
 }
+
 export default async function ProjectDetailPage({
     params,
 }: ProjectDetailPageProps) {
@@ -21,6 +24,7 @@ export default async function ProjectDetailPage({
     return (
         <div className="min-h-full bg-slate-50/70">
             <div className="mx-auto max-w-7xl space-y-6 p-6 lg:p-8">
+              
                 <ProjectHero project={project} />
 
                 <div className="grid gap-6 lg:grid-cols-3">
@@ -52,31 +56,37 @@ export default async function ProjectDetailPage({
                             </h2>
 
                             <div className="mt-5 space-y-2">
-                                {project.links?.map((link) => (
-                                    <a
-                                        key={link.id}
-                                        href={link.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center justify-between rounded-xl border border-slate-200 p-3 transition hover:border-slate-300 hover:bg-slate-50"
-                                    >
-                                        <div>
-                                            <p className="text-sm font-medium text-slate-800">
-                                                {link.label}
-                                            </p>
-
-                                            {link.type && (
-                                                <p className="text-xs capitalize text-slate-400">
-                                                    {link.type}
+                                {project.links?.length ? (
+                                    project.links.map((link) => (
+                                        <a
+                                            key={link.id}
+                                            href={link.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center justify-between rounded-xl border border-slate-200 p-3 transition hover:border-slate-300 hover:bg-slate-50"
+                                        >
+                                            <div>
+                                                <p className="text-sm font-medium text-slate-800">
+                                                    {link.label}
                                                 </p>
-                                            )}
-                                        </div>
 
-                                        <span className="text-slate-400">
-                                            ↗
-                                        </span>
-                                    </a>
-                                ))}
+                                                {link.type && (
+                                                    <p className="text-xs capitalize text-slate-400">
+                                                        {link.type}
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            <span className="text-slate-400">
+                                                ↗
+                                            </span>
+                                        </a>
+                                    ))
+                                ) : (
+                                    <p className="text-sm text-slate-500">
+                                        No links added yet.
+                                    </p>
+                                )}
                             </div>
                         </section>
                     </aside>

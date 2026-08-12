@@ -15,11 +15,8 @@ class ExperienceController extends Controller
     {
         $query = Experience::query();
 
-        if ($request->user()->role !== 'admin') {
-            $query->where('user_id', $request->user()->id);
-        }
-
         $experiences = $query
+            ->where('user_id', $request->user()->id)
             ->latest('start_date')
             ->get()
             ->map(function ($experience) {

@@ -14,21 +14,70 @@ class StoreProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', 'unique:projects,slug'],
+            'title' => [
+                'required',
+                'string',
+                'max:255',
+            ],
 
-            'summary' => ['nullable', 'string'],
-            'content' => ['nullable', 'string'],
+            'slug' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:projects,slug',
+            ],
 
-            'cover_image' => ['nullable', 'string', 'max:255'],
-            'github_url' => ['nullable', 'url', 'max:255'],
-            'demo_url' => ['nullable', 'url', 'max:255'],
+            'summary' => [
+                'nullable',
+                'string',
+            ],
 
-            'featured' => ['nullable', 'boolean'],
-            'status' => ['nullable', 'string', 'in:draft,active,archived,completed'],
+            'content' => [
+                'nullable',
+                'string',
+            ],
 
-            'started_at' => ['nullable', 'date'],
-            'completed_at' => ['nullable', 'date', 'after_or_equal:started_at'],
+            'cover_image' => [
+                'nullable',
+                'file',
+                'image',
+                'mimes:jpeg,jpg,png,webp',
+                'max:5120',
+            ],
+
+            'github_url' => [
+                'nullable',
+                'url',
+                'max:255',
+            ],
+
+            'demo_url' => [
+                'nullable',
+                'url',
+                'max:255',
+            ],
+
+            'featured' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'status' => [
+                'nullable',
+                'string',
+                'in:draft,active,archived,completed',
+            ],
+
+            'started_at' => [
+                'nullable',
+                'date',
+            ],
+
+            'completed_at' => [
+                'nullable',
+                'date',
+                'after_or_equal:started_at',
+            ],
         ];
     }
 }

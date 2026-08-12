@@ -51,9 +51,7 @@ const initialForm: ProjectFormData = {
     completed_at: "",
 };
 
-function projectToForm(
-    project: Project
-): ProjectFormData {
+function projectToForm(project: Project): ProjectFormData {
     return {
         title: project.title ?? "",
         slug: project.slug ?? "",
@@ -79,18 +77,29 @@ export default function ProjectForm({
 }: ProjectFormProps) {
     const router = useRouter();
 
+    const isEdit = mode === "edit";
+
     /*
     |--------------------------------------------------------------------------
     | Project Form
     |--------------------------------------------------------------------------
     */
 
-    const [form, setForm] =
-        useState<ProjectFormData>(
-            project
-                ? projectToForm(project)
-                : initialForm
-        );
+    const [form, setForm] = useState<ProjectFormData>(
+        project ? projectToForm(project) : initialForm
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cover Image
+    |--------------------------------------------------------------------------
+    */
+
+    const [coverImageFile, setCoverImageFile] =
+        useState<File | null>(null);
+
+    const [coverImagePreview, setCoverImagePreview] =
+        useState<string>(project?.cover_image ?? "");
 
     /*
     |--------------------------------------------------------------------------
@@ -98,18 +107,14 @@ export default function ProjectForm({
     |--------------------------------------------------------------------------
     */
 
-    const [technologies, setTechnologies] =
-        useState<Technology[]>([]);
+    const [technologies, setTechnologies] = useState<Technology[]>([]);
 
-    const [
-        selectedTechnologyIds,
-        setSelectedTechnologyIds,
-    ] = useState<string[]>(
-        project?.technologies?.map(
-            (technology: Technology) =>
-                technology.id
-        ) ?? []
-    );
+    const [selectedTechnologyIds, setSelectedTechnologyIds] =
+        useState<string[]>(
+            project?.technologies?.map(
+                (technology: Technology) => technology.id
+            ) ?? []
+        );
 
     /*
     |--------------------------------------------------------------------------
@@ -117,52 +122,35 @@ export default function ProjectForm({
     |--------------------------------------------------------------------------
     */
 
-    const [features, setFeatures] =
-        useState<ProjectFeature[]>([]);
+    const [features, setFeatures] = useState<ProjectFeature[]>([]);
 
-    const [newFeatureTitle, setNewFeatureTitle] =
+    const [newFeatureTitle, setNewFeatureTitle] = useState("");
+    const [newFeatureDescription, setNewFeatureDescription] =
         useState("");
-
-    const [
-        newFeatureDescription,
-        setNewFeatureDescription,
-    ] = useState("");
 
     const [editingFeatureId, setEditingFeatureId] =
         useState<string | null>(null);
 
-    const [
-        editingFeatureTitle,
-        setEditingFeatureTitle,
-    ] = useState("");
+    const [editingFeatureTitle, setEditingFeatureTitle] = useState("");
+    const [editingFeatureDescription, setEditingFeatureDescription] =
+        useState("");
 
-    const [
-        editingFeatureDescription,
-        setEditingFeatureDescription,
-    ] = useState("");
-
-    const [isFeatureLoading, setIsFeatureLoading] =
-        useState(false);
-
-    const [isAddingFeature, setIsAddingFeature] =
-        useState(false);
+    const [isFeatureLoading, setIsFeatureLoading] = useState(false);
+    const [isAddingFeature, setIsAddingFeature] = useState(false);
 
     /*
     |--------------------------------------------------------------------------
-    | Form State
+    | Submit State
     |--------------------------------------------------------------------------
     */
 
-    const [isSubmitting, setIsSubmitting] =
-        useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const [error, setError] =
-        useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
-    const [validationErrors, setValidationErrors] =
-        useState<Record<string, string[]>>({});
-
-    const isEdit = mode === "edit";
+    const [validationErrors, setValidationErrors] = useState<
+        Record<string, string[]>
+    >({});
 
     /*
     |--------------------------------------------------------------------------
@@ -173,12 +161,9 @@ export default function ProjectForm({
     useEffect(() => {
         async function loadTechnologies() {
             try {
-                const response = await fetch(
-                    "/api/technologies",
-                    {
-                        cache: "no-store",
-                    }
-                );
+                const response = await fetch("/api/technologies", {
+                    cache: "no-store",
+                });
 
                 if (!response.ok) {
                     throw new Error(
@@ -186,21 +171,16 @@ export default function ProjectForm({
                     );
                 }
 
-                const result =
-                    await response.json();
+                const result = await response.json();
 
-                setTechnologies(
-                    result.data ?? result
-                );
+                setTechnologies(result.data ?? result);
             } catch (error) {
                 console.error(
                     "Failed to load technologies:",
                     error
                 );
 
-                toast.error(
-                    "Failed to load technologies."
-                );
+                toast.error("Failed to load technologies.");
             }
         }
 
@@ -224,6 +204,7 @@ export default function ProjectForm({
 
             try {
                 if (!project?.id) {
+                    setFeatures([]);
                     return;
                 }
 
@@ -240,12 +221,9 @@ export default function ProjectForm({
                     );
                 }
 
-                const result =
-                    await response.json();
+                const result = await response.json();
 
-                setFeatures(
-                    result.data ?? []
-                );
+                setFeatures(result.data ?? []);
             } catch (error) {
                 console.error(
                     "Failed to load features:",
@@ -270,17 +248,35 @@ export default function ProjectForm({
     */
 
     useEffect(() => {
-        if (project) {
-            setForm(projectToForm(project));
-
-            setSelectedTechnologyIds(
-                project.technologies?.map(
-                    (technology: Technology) =>
-                        technology.id
-                ) ?? []
-            );
+        if (!project) {
+            return;
         }
+
+        setForm(projectToForm(project));
+
+        setCoverImagePreview(project.cover_image ?? "");
+        setCoverImageFile(null);
+
+        setSelectedTechnologyIds(
+            project.technologies?.map(
+                (technology: Technology) => technology.id
+            ) ?? []
+        );
     }, [project]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cleanup Cover Preview
+    |--------------------------------------------------------------------------
+    */
+
+    useEffect(() => {
+        return () => {
+            if (coverImagePreview.startsWith("blob:")) {
+                URL.revokeObjectURL(coverImagePreview);
+            }
+        };
+    }, [coverImagePreview]);
 
     /*
     |--------------------------------------------------------------------------
@@ -316,29 +312,92 @@ export default function ProjectForm({
 
     /*
     |--------------------------------------------------------------------------
+    | Cover Image Change
+    |--------------------------------------------------------------------------
+    */
+
+    function handleCoverImageChange(
+        event: React.ChangeEvent<HTMLInputElement>
+    ) {
+        const file = event.target.files?.[0] ?? null;
+
+        if (!file) {
+            return;
+        }
+
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file.");
+
+            event.target.value = "";
+
+            return;
+        }
+
+        const maxSize = 5 * 1024 * 1024;
+
+        if (file.size > maxSize) {
+            toast.error("Cover image must be smaller than 5MB.");
+
+            event.target.value = "";
+
+            return;
+        }
+
+        setCoverImageFile(file);
+
+        const previewUrl = URL.createObjectURL(file);
+
+        setCoverImagePreview(previewUrl);
+
+        if (validationErrors.cover_image) {
+            setValidationErrors((current) => {
+                const updated = {
+                    ...current,
+                };
+
+                delete updated.cover_image;
+
+                return updated;
+            });
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Clear Cover Image
+    |--------------------------------------------------------------------------
+    */
+
+    function clearCoverImage() {
+        setCoverImageFile(null);
+        setCoverImagePreview("");
+
+        const input = document.getElementById(
+            "cover_image"
+        ) as HTMLInputElement | null;
+
+        if (input) {
+            input.value = "";
+        }
+
+        handleChange("cover_image", "");
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Technology Selection
     |--------------------------------------------------------------------------
     */
 
-    function toggleTechnology(
-        technologyId: string
-    ) {
+    function toggleTechnology(technologyId: string) {
         setSelectedTechnologyIds((current) => {
-            if (
-                current.includes(
-                    technologyId
-                )
-            ) {
+            if (current.includes(technologyId)) {
                 return current.filter(
-                    (id) =>
-                        id !== technologyId
+                    (id) => id !== technologyId
                 );
             }
 
-            return [
-                ...current,
-                technologyId,
-            ];
+            return [...current, technologyId];
         });
     }
 
@@ -361,16 +420,11 @@ export default function ProjectForm({
             return;
         }
 
-        const title =
-            newFeatureTitle.trim();
-
-        const description =
-            newFeatureDescription.trim();
+        const title = newFeatureTitle.trim();
+        const description = newFeatureDescription.trim();
 
         if (!title) {
-            toast.error(
-                "Feature title is required."
-            );
+            toast.error("Feature title is required.");
 
             return;
         }
@@ -383,22 +437,17 @@ export default function ProjectForm({
                 {
                     method: "POST",
                     headers: {
-                        "Content-Type":
-                            "application/json",
+                        "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
                         title,
-                        description:
-                            description ||
-                            null,
-                        sort_order:
-                            features.length,
+                        description: description || null,
+                        sort_order: features.length,
                     }),
                 }
             );
 
-            const result =
-                await response.json();
+            const result = await response.json();
 
             if (!response.ok) {
                 throw new Error(
@@ -415,9 +464,7 @@ export default function ProjectForm({
             setNewFeatureTitle("");
             setNewFeatureDescription("");
 
-            toast.success(
-                "Feature added successfully."
-            );
+            toast.success("Feature added successfully.");
         } catch (error) {
             const message =
                 error instanceof Error
@@ -436,17 +483,9 @@ export default function ProjectForm({
     |--------------------------------------------------------------------------
     */
 
-    function startEditingFeature(
-        feature: ProjectFeature
-    ) {
-        setEditingFeatureId(
-            feature.id
-        );
-
-        setEditingFeatureTitle(
-            feature.title
-        );
-
+    function startEditingFeature(feature: ProjectFeature) {
+        setEditingFeatureId(feature.id);
+        setEditingFeatureTitle(feature.title);
         setEditingFeatureDescription(
             feature.description ?? ""
         );
@@ -470,23 +509,17 @@ export default function ProjectForm({
     |--------------------------------------------------------------------------
     */
 
-    async function updateFeature(
-        featureId: string
-    ) {
+    async function updateFeature(featureId: string) {
         if (!project?.id) {
             return;
         }
 
-        const title =
-            editingFeatureTitle.trim();
-
+        const title = editingFeatureTitle.trim();
         const description =
             editingFeatureDescription.trim();
 
         if (!title) {
-            toast.error(
-                "Feature title is required."
-            );
+            toast.error("Feature title is required.");
 
             return;
         }
@@ -497,20 +530,16 @@ export default function ProjectForm({
                 {
                     method: "PUT",
                     headers: {
-                        "Content-Type":
-                            "application/json",
+                        "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
                         title,
-                        description:
-                            description ||
-                            null,
+                        description: description || null,
                     }),
                 }
             );
 
-            const result =
-                await response.json();
+            const result = await response.json();
 
             if (!response.ok) {
                 throw new Error(
@@ -520,12 +549,10 @@ export default function ProjectForm({
             }
 
             setFeatures((current) =>
-                current.map(
-                    (feature) =>
-                        feature.id ===
-                            featureId
-                            ? result.data
-                            : feature
+                current.map((feature) =>
+                    feature.id === featureId
+                        ? result.data
+                        : feature
                 )
             );
 
@@ -550,17 +577,14 @@ export default function ProjectForm({
     |--------------------------------------------------------------------------
     */
 
-    async function deleteFeature(
-        featureId: string
-    ) {
+    async function deleteFeature(featureId: string) {
         if (!project?.id) {
             return;
         }
 
-        const confirmed =
-            window.confirm(
-                "Are you sure you want to delete this feature?"
-            );
+        const confirmed = window.confirm(
+            "Are you sure you want to delete this feature?"
+        );
 
         if (!confirmed) {
             return;
@@ -574,8 +598,7 @@ export default function ProjectForm({
                 }
             );
 
-            const result =
-                await response.json();
+            const result = await response.json();
 
             if (!response.ok) {
                 throw new Error(
@@ -586,16 +609,11 @@ export default function ProjectForm({
 
             setFeatures((current) =>
                 current.filter(
-                    (feature) =>
-                        feature.id !==
-                        featureId
+                    (feature) => feature.id !== featureId
                 )
             );
 
-            if (
-                editingFeatureId ===
-                featureId
-            ) {
+            if (editingFeatureId === featureId) {
                 cancelEditingFeature();
             }
 
@@ -634,13 +652,8 @@ export default function ProjectForm({
             |--------------------------------------------------------------------------
             */
 
-            if (
-                isEdit &&
-                !project?.id
-            ) {
-                throw new Error(
-                    "Project ID is missing."
-                );
+            if (isEdit && !project?.id) {
+                throw new Error("Project ID is missing.");
             }
 
             /*
@@ -653,24 +666,69 @@ export default function ProjectForm({
                 ? `/api/projects/${project?.id}`
                 : "/api/projects";
 
-            const response = await fetch(
-                url,
-                {
-                    method: isEdit
-                        ? "PUT"
-                        : "POST",
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-                    },
-                    body: JSON.stringify(
-                        form
-                    ),
-                }
+            /*
+            |--------------------------------------------------------------------------
+            | FormData
+            |--------------------------------------------------------------------------
+            */
+
+            const formData = new FormData();
+
+            formData.append("title", form.title);
+            formData.append("slug", form.slug);
+            formData.append("summary", form.summary);
+            formData.append("content", form.content);
+            formData.append(
+                "github_url",
+                form.github_url
+            );
+            formData.append(
+                "demo_url",
+                form.demo_url
+            );
+            formData.append(
+                "featured",
+                form.featured ? "1" : "0"
+            );
+            formData.append("status", form.status);
+            formData.append(
+                "started_at",
+                form.started_at
+            );
+            formData.append(
+                "completed_at",
+                form.completed_at
             );
 
-            const data =
-                await response.json();
+            /*
+            |--------------------------------------------------------------------------
+            | Cover Image
+            |--------------------------------------------------------------------------
+            */
+
+            if (coverImageFile) {
+                formData.append(
+                    "cover_image",
+                    coverImageFile
+                );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Laravel Method Spoofing
+            |--------------------------------------------------------------------------
+            */
+
+            if (isEdit) {
+                formData.append("_method", "PUT");
+            }
+
+            const response = await fetch(url, {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await response.json();
 
             /*
             |--------------------------------------------------------------------------
@@ -679,10 +737,7 @@ export default function ProjectForm({
             */
 
             if (!response.ok) {
-                if (
-                    response.status ===
-                    422
-                ) {
+                if (response.status === 422) {
                     setValidationErrors(
                         data.errors ?? {}
                     );
@@ -691,7 +746,7 @@ export default function ProjectForm({
                 }
 
                 throw new Error(
-                    data.message ||
+                    data.message ??
                     `Failed to ${isEdit
                         ? "update"
                         : "create"
@@ -706,8 +761,7 @@ export default function ProjectForm({
             */
 
             const projectId =
-                data.data?.id ??
-                project?.id;
+                data.data?.id ?? project?.id;
 
             if (!projectId) {
                 throw new Error(
@@ -721,30 +775,25 @@ export default function ProjectForm({
             |--------------------------------------------------------------------------
             */
 
-            const technologyResponse =
-                await fetch(
-                    `/api/projects/${projectId}/technologies`,
-                    {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type":
-                                "application/json",
-                        },
-                        body: JSON.stringify(
-                            {
-                                technology_ids:
-                                    selectedTechnologyIds,
-                            }
-                        ),
-                    }
-                );
+            const technologyResponse = await fetch(
+                `/api/projects/${projectId}/technologies`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+                    },
+                    body: JSON.stringify({
+                        technology_ids:
+                            selectedTechnologyIds,
+                    }),
+                }
+            );
 
             const technologyData =
                 await technologyResponse.json();
 
-            if (
-                !technologyResponse.ok
-            ) {
+            if (!technologyResponse.ok) {
                 throw new Error(
                     technologyData.message ??
                     "Failed to update project technologies."
@@ -891,10 +940,7 @@ export default function ProjectForm({
 
                         {validationErrors.title && (
                             <p className="text-xs font-medium text-red-600">
-                                {
-                                    validationErrors
-                                        .title[0]
-                                }
+                                {validationErrors.title[0]}
                             </p>
                         )}
                     </div>
@@ -931,10 +977,7 @@ export default function ProjectForm({
 
                         {validationErrors.slug && (
                             <p className="text-xs font-medium text-red-600">
-                                {
-                                    validationErrors
-                                        .slug[0]
-                                }
+                                {validationErrors.slug[0]}
                             </p>
                         )}
                     </div>
@@ -968,10 +1011,7 @@ export default function ProjectForm({
 
                         {validationErrors.summary && (
                             <p className="text-xs font-medium text-red-600">
-                                {
-                                    validationErrors
-                                        .summary[0]
-                                }
+                                {validationErrors.summary[0]}
                             </p>
                         )}
                     </div>
@@ -1020,10 +1060,7 @@ export default function ProjectForm({
 
                     {validationErrors.content && (
                         <p className="mt-2 text-xs font-medium text-red-600">
-                            {
-                                validationErrors
-                                    .content[0]
-                            }
+                            {validationErrors.content[0]}
                         </p>
                     )}
                 </div>
@@ -1042,7 +1079,8 @@ export default function ProjectForm({
                             </h2>
 
                             <p className="mt-1 text-sm text-slate-500">
-                                Select the technologies used in this project.
+                                Select the technologies used in this
+                                project.
                             </p>
                         </div>
 
@@ -1059,8 +1097,7 @@ export default function ProjectForm({
                 </div>
 
                 <div className="p-6">
-                    {technologies.length ===
-                        0 ? (
+                    {technologies.length === 0 ? (
                         <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center">
                             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-white text-xl shadow-sm">
                                 ⚡
@@ -1071,17 +1108,14 @@ export default function ProjectForm({
                             </p>
 
                             <p className="mt-1 text-xs leading-5 text-slate-400">
-                                Create a technology first
-                                before assigning it to
-                                this project.
+                                Create a technology first before
+                                assigning it to this project.
                             </p>
                         </div>
                     ) : (
                         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                             {technologies.map(
-                                (
-                                    technology
-                                ) => {
+                                (technology) => {
                                     const selected =
                                         selectedTechnologyIds.includes(
                                             technology.id
@@ -1192,40 +1226,39 @@ export default function ProjectForm({
                         </div>
                     )}
 
-                    {selectedTechnologyIds.length >
-                        0 && (
-                            <div className="mt-5 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                <div className="flex items-center gap-2">
-                                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-900 text-xs text-white">
-                                        ✓
-                                    </div>
-
-                                    <p className="text-sm text-slate-600">
-                                        <span className="font-semibold text-slate-900">
-                                            {
-                                                selectedTechnologyIds.length
-                                            }
-                                        </span>{" "}
-                                        technolog
-                                        {selectedTechnologyIds.length >
-                                            1
-                                            ? "ies"
-                                            : "y"}{" "}
-                                        selected
-                                    </p>
+                    {selectedTechnologyIds.length > 0 && (
+                        <div className="mt-5 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                            <div className="flex items-center gap-2">
+                                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-900 text-xs text-white">
+                                    ✓
                                 </div>
 
-                                <button
-                                    type="button"
-                                    onClick={
-                                        clearTechnologies
-                                    }
-                                    className="text-xs font-semibold text-slate-500 transition hover:text-red-600"
-                                >
-                                    Clear all
-                                </button>
+                                <p className="text-sm text-slate-600">
+                                    <span className="font-semibold text-slate-900">
+                                        {
+                                            selectedTechnologyIds.length
+                                        }
+                                    </span>{" "}
+                                    technolog
+                                    {selectedTechnologyIds.length >
+                                        1
+                                        ? "ies"
+                                        : "y"}{" "}
+                                    selected
+                                </p>
                             </div>
-                        )}
+
+                            <button
+                                type="button"
+                                onClick={
+                                    clearTechnologies
+                                }
+                                className="text-xs font-semibold text-slate-500 transition hover:text-red-600"
+                            >
+                                Clear all
+                            </button>
+                        </div>
+                    )}
                 </div>
             </section>
 
@@ -1242,22 +1275,19 @@ export default function ProjectForm({
                             </h2>
 
                             <p className="mt-1 text-sm text-slate-500">
-                                Define the main features and capabilities of this project.
+                                Define the main features and capabilities
+                                of this project.
                             </p>
                         </div>
 
-                        {features.length >
-                            0 && (
-                                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                                    {
-                                        features.length
-                                    }{" "}
-                                    {features.length ===
-                                        1
-                                        ? "feature"
-                                        : "features"}
-                                </span>
-                            )}
+                        {features.length > 0 && (
+                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                                {features.length}{" "}
+                                {features.length === 1
+                                    ? "feature"
+                                    : "features"}
+                            </span>
+                        )}
                     </div>
                 </div>
 
@@ -1273,15 +1303,12 @@ export default function ProjectForm({
                             </p>
 
                             <p className="mt-1 text-xs leading-5 text-slate-400">
-                                After creating the project,
-                                you can add and manage its
-                                features here.
+                                After creating the project, you can add
+                                and manage its features here.
                             </p>
                         </div>
                     ) : (
                         <>
-                            {/* Add Feature */}
-
                             <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
                                 <div className="mb-4">
                                     <h3 className="text-sm font-semibold text-slate-800">
@@ -1289,7 +1316,9 @@ export default function ProjectForm({
                                     </h3>
 
                                     <p className="mt-1 text-xs text-slate-500">
-                                        Add a feature that describes an important capability of this project.
+                                        Add a feature that describes an
+                                        important capability of this
+                                        project.
                                     </p>
                                 </div>
 
@@ -1378,15 +1407,11 @@ export default function ProjectForm({
                                 </div>
                             </div>
 
-                            {/* Feature List */}
-
                             <div className="mt-6">
                                 {isFeatureLoading ? (
                                     <div className="space-y-3">
                                         {[1, 2, 3].map(
-                                            (
-                                                item
-                                            ) => (
+                                            (item) => (
                                                 <div
                                                     key={
                                                         item
@@ -1408,7 +1433,8 @@ export default function ProjectForm({
                                         </p>
 
                                         <p className="mt-1 text-xs text-slate-400">
-                                            Add your first project feature above.
+                                            Add your first project feature
+                                            above.
                                         </p>
                                     </div>
                                 ) : (
@@ -1497,7 +1523,8 @@ export default function ProjectForm({
                                                                         }
                                                                         className="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800"
                                                                     >
-                                                                        Save Changes
+                                                                        Save
+                                                                        Changes
                                                                     </button>
                                                                 </div>
                                                             </div>
@@ -1583,12 +1610,14 @@ export default function ProjectForm({
                     </p>
 
                     <p className="mt-1 text-xs leading-5 text-slate-400">
-                        After creating the project, you can upload
-                        and manage project images here.
+                        After creating the project, you can upload and
+                        manage project images here.
                     </p>
                 </div>
             ) : (
-                <ProjectImages projectId={project.id} />
+                <ProjectImages
+                    projectId={project.id}
+                />
             )}
 
             {/* =====================================================
@@ -1606,13 +1635,15 @@ export default function ProjectForm({
                     </p>
 
                     <p className="mt-1 text-xs leading-5 text-slate-400">
-                        After creating the project, you can add
-                        GitHub repositories, live demos, and other
-                        project-related links.
+                        After creating the project, you can add GitHub
+                        repositories, live demos, and other project-related
+                        links.
                     </p>
                 </div>
             ) : (
-                <ProjectLinks projectId={project.id} />
+                <ProjectLinks
+                    projectId={project.id}
+                />
             )}
 
             {/* =====================================================
@@ -1626,35 +1657,44 @@ export default function ProjectForm({
                     </h2>
 
                     <p className="mt-1 text-sm text-slate-500">
-                        Set the main image used to represent this project.
+                        Upload the main image used to represent this
+                        project.
                     </p>
                 </div>
 
-                <div className="p-6">
+                <div className="space-y-5 p-6">
                     <div className="space-y-2">
                         <label
                             htmlFor="cover_image"
                             className="text-sm font-medium text-slate-700"
                         >
-                            Cover Image URL
+                            Project Cover
                         </label>
 
                         <input
                             id="cover_image"
                             name="cover_image"
-                            type="url"
-                            value={form.cover_image}
-                            onChange={(event) =>
-                                handleChange(
-                                    "cover_image",
-                                    event.target.value
-                                )
+                            type="file"
+                            accept="image/*"
+                            onChange={
+                                handleCoverImageChange
                             }
-                            placeholder="https://..."
-                            className={getInputClass(
-                                "cover_image"
-                            )}
+                            className="
+                                block w-full cursor-pointer rounded-lg
+                                border border-slate-200 bg-white
+                                text-sm text-slate-600
+                                file:mr-4 file:border-0
+                                file:bg-slate-100
+                                file:px-4 file:py-2.5
+                                file:text-sm file:font-semibold
+                                file:text-slate-700
+                                hover:file:bg-slate-200
+                            "
                         />
+
+                        <p className="text-xs text-slate-400">
+                            JPG, PNG, WEBP. Maximum size: 5MB.
+                        </p>
 
                         {validationErrors.cover_image && (
                             <p className="text-xs font-medium text-red-600">
@@ -1665,6 +1705,46 @@ export default function ProjectForm({
                             </p>
                         )}
                     </div>
+
+                    {coverImagePreview && (
+                        <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+                            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                                <div>
+                                    <p className="text-sm font-semibold text-slate-700">
+                                        Preview
+                                    </p>
+
+                                    {coverImageFile && (
+                                        <p className="mt-0.5 text-xs text-slate-400">
+                                            {
+                                                coverImageFile.name
+                                            }
+                                        </p>
+                                    )}
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={
+                                        clearCoverImage
+                                    }
+                                    className="text-xs font-semibold text-slate-500 transition hover:text-red-600"
+                                >
+                                    Clear
+                                </button>
+                            </div>
+
+                            <div className="relative aspect-video w-full bg-slate-100">
+                                <img
+                                    src={
+                                        coverImagePreview
+                                    }
+                                    alt={`${form.title || "Project"} cover`}
+                                    className="h-full w-full object-cover"
+                                />
+                            </div>
+                        </div>
+                    )}
                 </div>
             </section>
 
@@ -1684,8 +1764,6 @@ export default function ProjectForm({
                 </div>
 
                 <div className="grid gap-6 p-6 md:grid-cols-2">
-                    {/* Started */}
-
                     <div className="space-y-2">
                         <label
                             htmlFor="started_at"
@@ -1719,8 +1797,6 @@ export default function ProjectForm({
                             </p>
                         )}
                     </div>
-
-                    {/* Completed */}
 
                     <div className="space-y-2">
                         <label
@@ -1774,8 +1850,6 @@ export default function ProjectForm({
                 </div>
 
                 <div className="grid gap-6 p-6 md:grid-cols-2">
-                    {/* Status */}
-
                     <div className="space-y-2">
                         <label
                             htmlFor="status"
@@ -1825,8 +1899,6 @@ export default function ProjectForm({
                         )}
                     </div>
 
-                    {/* Featured */}
-
                     <label className="flex cursor-pointer items-center justify-between rounded-xl border border-slate-200 bg-slate-50/70 p-4 transition hover:border-slate-300 hover:bg-slate-50">
                         <div>
                             <p className="text-sm font-medium text-slate-800">
@@ -1863,9 +1935,7 @@ export default function ProjectForm({
                         type="button"
                         disabled={isSubmitting}
                         onClick={() =>
-                            router.push(
-                                "/projects"
-                            )
+                            router.push("/projects")
                         }
                         className="rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
                     >
@@ -1874,9 +1944,7 @@ export default function ProjectForm({
 
                     <button
                         type="submit"
-                        disabled={
-                            isSubmitting
-                        }
+                        disabled={isSubmitting}
                         className="inline-flex min-w-[170px] items-center justify-center gap-2 rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-sm"
                     >
                         {isSubmitting ? (
@@ -1893,9 +1961,7 @@ export default function ProjectForm({
                                     ? "Update Project"
                                     : "Create Project"}
 
-                                <span>
-                                    →
-                                </span>
+                                <span>→</span>
                             </>
                         )}
                     </button>

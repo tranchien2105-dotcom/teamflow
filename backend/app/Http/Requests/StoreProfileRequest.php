@@ -31,16 +31,18 @@ class StoreProfileRequest extends FormRequest
                 'string',
             ],
 
-            'avatar_url' => [
+            'avatar' => [
                 'nullable',
-                'url',
-                'max:255',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:5120',
             ],
 
-            'cv_url' => [
+            'cv' => [
                 'nullable',
-                'url',
-                'max:255',
+                'file',
+                'mimes:pdf',
+                'max:10240',
             ],
 
             'phone' => [

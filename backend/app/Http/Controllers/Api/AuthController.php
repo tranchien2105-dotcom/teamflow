@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -36,8 +37,23 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
+        $user = $request->user()->load('profile');
+
+        if ($user->profile) {
+            /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+            $disk = Storage::disk('public');
+
+            $user->profile->avatar_url = $user->profile->avatar_url
+                ? $disk->url($user->profile->avatar_url)
+                : null;
+
+            $user->profile->cv_url = $user->profile->cv_url
+                ? $disk->url($user->profile->cv_url)
+                : null;
+        }
+
         return response()->json([
-            'user' => $request->user()->load('profile'),
+            'user' => $user,
         ]);
     }
 }

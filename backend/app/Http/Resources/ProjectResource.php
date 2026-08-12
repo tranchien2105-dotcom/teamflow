@@ -2,13 +2,18 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class ProjectResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        /** @var FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+
         return [
             'id' => $this->id,
 
@@ -17,7 +22,10 @@ class ProjectResource extends JsonResource
             'summary' => $this->summary,
             'content' => $this->content,
 
-            'cover_image' => $this->cover_image,
+            'cover_image' => $this->cover_image
+                ? $disk->url($this->cover_image)
+                : null,
+
             'github_url' => $this->github_url,
             'demo_url' => $this->demo_url,
 

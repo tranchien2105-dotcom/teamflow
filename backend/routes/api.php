@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CvController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ExperienceController;
+use App\Http\Controllers\Api\PortfolioController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\TestController;
 use App\Http\Controllers\BlogPostController;
@@ -23,14 +24,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/ping', [TestController::class, 'ping']);
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware(['auth:sanctum', 'admin'])->get(
-    '/admin/test',
-    function () {
-        return response()->json([
-            'message' => 'Admin access granted.',
-        ]);
-    }
-);
+// Portfolio
+Route::get('/portfolio/default',[PortfolioController::class, 'default']);
+Route::get('/portfolio/{username}', [PortfolioController::class,'show']);
+
 
 // Protected
 Route::middleware('auth:sanctum')->group(function () {

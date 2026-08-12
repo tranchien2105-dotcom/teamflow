@@ -18,3 +18,11 @@ export async function createServerApi() {
         withCredentials: true,
     });
 }
+
+export async function getCurrentUser() {
+    const api = await createServerApi();
+
+    const { data } = await api.get("/api/me");
+
+    return data;
+}
