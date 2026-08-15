@@ -20,19 +20,16 @@ use App\Http\Controllers\SkillController;
 use App\Http\Controllers\TechnologyController;
 use Illuminate\Support\Facades\Route;
 
-// Public
+// Công khai
 Route::get('/ping', [TestController::class, 'ping']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// Portfolio
+// Portfolio công khai
 Route::get('/portfolio/default', [PortfolioController::class, 'default']);
 Route::get('/portfolio/{username}', [PortfolioController::class, 'show']);
 Route::get('/portfolio/projects/{slug}', [ProjectController::class, 'publicShow']);
-
-
-// Protected
+// Cần đăng nhập
 Route::middleware('auth:sanctum')->group(function () {
-
     // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
@@ -53,7 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Projects
     Route::apiResource('projects', ProjectController::class);
 
-    // Blogs 
+    // Blog
     Route::apiResource('blog-posts', BlogPostController::class);
 
     // Certificate
@@ -84,8 +81,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/technologies', [TechnologyController::class, 'index']);
 
     Route::middleware('admin')->group(function () {
-        Route::apiResource('technologies', TechnologyController::class)
-            ->except(['index']);
+        Route::apiResource('technologies', TechnologyController::class)->except(['index']);
     });
 
     // Schools
@@ -102,10 +98,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/users', [AdminUserController::class, 'index']);
             Route::get('/users/{user}', [AdminUserController::class, 'show']);
 
-            Route::patch(
-                '/users/{user}/role',
-                [AdminUserController::class, 'changeRole']
-            );
+            Route::patch('/users/{user}/role', [AdminUserController::class, 'changeRole']);
         });
 
     // Dashboard
