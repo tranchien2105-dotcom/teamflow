@@ -1,0 +1,15 @@
+# Các file môi trường có thể chứa khóa ứng dụng, thông tin đăng nhập và URL production.
+.env
+.env.*
+!.env.example
+!/.env.example
+
+# File môi trường Laravel (chỉ giữ lại file mẫu để commit).
+/backend/.env
+/backend/.env.*
+!/backend/.env.example
+
+# Dữ liệu Docker và bản sao lưu cục bộ có thể chứa database dump hoặc file người dùng tải lên.
+/storage-backup/
+/postgres_data/
+/laravel_storage/
