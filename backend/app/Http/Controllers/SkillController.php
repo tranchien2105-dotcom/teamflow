@@ -9,24 +9,14 @@ use Illuminate\Http\Request;
 class SkillController extends Controller
 {
     /**
-     * Get skills.
-     *
-     * Admin: all users
-     * User: authenticated user only
+     * Get skills of authenticated user.
      */
     public function index(
         Request $request
     ): JsonResponse {
-        $query = Skill::query();
-
-        if ($request->user()->role !== 'admin') {
-            $query->where(
-                'user_id',
-                $request->user()->id
-            );
-        }
-
-        $skills = $query
+        $skills = $request
+            ->user()
+            ->skills()
             ->orderBy(
                 'years_of_experience',
                 'DESC'

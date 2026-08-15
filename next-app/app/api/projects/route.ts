@@ -4,19 +4,29 @@ import { createServerApi } from "@/lib/server-axios";
 
 export async function POST(request: NextRequest) {
     try {
-        const body = await request.json();
+        const formData = await request.formData();
 
         const api = await createServerApi();
 
         const { data, status } = await api.post(
             "/api/projects",
-            body
+            formData,
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            }
         );
 
         return NextResponse.json(data, {
             status,
         });
     } catch (error: any) {
+        console.error(
+            "POST /api/projects error:",
+            error.response?.data ?? error
+        );
+
         const status =
             error.response?.status ?? 500;
 

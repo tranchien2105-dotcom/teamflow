@@ -25,8 +25,8 @@ Route::get('/ping', [TestController::class, 'ping']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // Portfolio
-Route::get('/portfolio/default',[PortfolioController::class, 'default']);
-Route::get('/portfolio/{username}', [PortfolioController::class,'show']);
+Route::get('/portfolio/default', [PortfolioController::class, 'default']);
+Route::get('/portfolio/{username}', [PortfolioController::class, 'show']);
 
 
 // Protected
@@ -50,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('skills', SkillController::class);
 
     // Projects
+    Route::get('/portfolio/projects/{slug}', [ProjectController::class, 'publicShow']);
     Route::apiResource('projects', ProjectController::class);
 
     // Blogs 

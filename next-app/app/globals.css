@@ -3,6 +3,31 @@
 :root {
     color-scheme: light;
 }
+@keyframes loader {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    50% {
+        transform: translateX(100%);
+    }
+
+    100% {
+        transform: translateX(300%);
+    }
+}
+
+@keyframes blink {
+    0%,
+    20% {
+        opacity: 0;
+    }
+
+    40%,
+    100% {
+        opacity: 1;
+    }
+}
 
 html {
     scroll-behavior: smooth;

@@ -17,7 +17,10 @@ export default function BackToTop() {
         handleScroll();
 
         return () => {
-            window.removeEventListener("scroll", handleScroll);
+            window.removeEventListener(
+                "scroll",
+                handleScroll
+            );
         };
     }, []);
 
@@ -34,17 +37,27 @@ export default function BackToTop() {
             onClick={scrollToTop}
             aria-label="Back to top"
             className={`
-                fixed bottom-6 right-6 z-50
-                flex h-10 w-10 items-center justify-center
+                fixed
+                bottom-6
+                right-6
+                z-50
+                flex
+                h-10
+                w-10
+                items-center
+                justify-center
                 rounded-full
-                border border-teal-300
-                bg-[#0a192f]/90
-                text-teal-300
+                border
+                border-amber-400/60
+                bg-[#111111]/90
+                text-amber-400
                 backdrop-blur
-                transition-all duration-300
+                transition-all
+                duration-300
                 hover:-translate-y-1
-                hover:bg-teal-300/10
-                hover:shadow-[0_0_12px_rgba(45,212,191,0.35)]
+                hover:border-amber-400
+                hover:bg-amber-400/10
+                hover:shadow-[0_0_12px_rgba(251,191,36,0.35)]
                 ${
                     visible
                         ? "translate-y-0 opacity-100"

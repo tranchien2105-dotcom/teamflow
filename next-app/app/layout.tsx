@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import BackToTop from "@/components/ui/BackToTop";
+import PageLoader from "@/components/public/PageLoader";
 
 const inter = Inter({
     variable: "--font-inter",
@@ -22,6 +23,7 @@ export default function RootLayout({
             <body
                 className={`${inter.variable} ${jetbrainsMono.variable}`}
             >
+                <PageLoader />
                 {children}
                 <BackToTop />
             </body>

@@ -239,7 +239,7 @@ export default function PortfolioPage({
                         return (
                             <Link
                                 key={project.id}
-                                href={`/projects/${project.slug}`}
+                                href={`/project/${project.slug}`}
                                 className="group block"
                             >
                                 <article
@@ -303,7 +303,7 @@ export default function PortfolioPage({
 
                 <div className="mt-12">
                     <Link
-                        href="/projects"
+                        href="/project"
                         className="font-mono text-xs text-teal-300 transition hover:text-teal-200"
                     >
                         View all projects →

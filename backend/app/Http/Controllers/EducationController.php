@@ -19,22 +19,14 @@ class EducationController extends Controller
      */
     public function index(): AnonymousResourceCollection
     {
-        $user = request()->user();
-
-        $query = Education::query()
-            ->with('school');
-
-        if ($user->role !== 'admin') {
-            $query->where('user_id', $user->id);
-        }
-
-        $educations = $query
+        $educations = request()
+            ->user()
+            ->educations()
+            ->with('school')
             ->latest('start_date')
             ->get();
 
-        return EducationResource::collection(
-            $educations
-        );
+        return EducationResource::collection($educations);
     }
 
     /**

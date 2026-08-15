@@ -224,8 +224,7 @@ export async function getDefaultPortfolio(): Promise<PortfolioData> {
     const response = await api.get<PortfolioResponse>(
         "/api/portfolio/default",
     );
-
-    console.log("data--------------------------", response.data.data)
+    
     return response.data.data;
 }
 

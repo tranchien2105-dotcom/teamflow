@@ -118,7 +118,6 @@ export default function ProjectImages({
                         : "Failed to load project images.";
 
                 setError(message);
-
                 toast.error(message);
             } finally {
                 setIsLoading(false);
@@ -325,7 +324,6 @@ export default function ProjectImages({
                     : "Failed to add project image.";
 
             setError(message);
-
             toast.error(message);
         } finally {
             setIsAdding(false);
@@ -439,6 +437,7 @@ export default function ProjectImages({
              * Only append image when
              * user selected a new file.
              */
+
             if (editingForm.file) {
                 formData.append(
                     "image",
@@ -465,6 +464,7 @@ export default function ProjectImages({
              *
              * Use POST + _method=PUT.
              */
+
             formData.append(
                 "_method",
                 "PUT"
@@ -517,7 +517,6 @@ export default function ProjectImages({
                     : "Failed to update project image.";
 
             setError(message);
-
             toast.error(message);
         } finally {
             setIsUpdating(false);
@@ -588,7 +587,6 @@ export default function ProjectImages({
                     : "Failed to delete project image.";
 
             setError(message);
-
             toast.error(message);
         } finally {
             setDeletingId(null);

@@ -57,59 +57,64 @@ export default function PublicLayout({
     };
 
     return (
-        <div className="min-h-screen bg-[#0a192f] text-slate-100 antialiased">
+        <div className="min-h-screen bg-[#111111] text-zinc-100 antialiased">
             {/* =====================================================
                 NAVBAR
             ====================================================== */}
 
             <header
-                className={`fixed inset-x-0 top-0 z-50 h-20 bg-[#0a192f]/90 backdrop-blur transition-transform duration-300 lg:h-24 ${showHeader ? "translate-y-0" : "-translate-y-full"
-                    }`}
+                className={`fixed inset-x-0 top-0 z-50 h-20 bg-[#111111]/90 backdrop-blur transition-transform duration-300 lg:h-24 ${
+                    showHeader ? "translate-y-0" : "-translate-y-full"
+                }`}
             >
                 <div className="flex h-full items-center justify-between px-5 sm:px-8 lg:px-14">
                     {/* Logo */}
+
                     <Link
                         href="/"
-                        className="group relative inline-flex h-10 w-10 items-center justify-center font-mono text-xl font-bold text-teal-300"
+                        className="group relative inline-flex h-10 w-10 items-center justify-center font-mono text-xl font-bold text-amber-400"
                         aria-label="Home"
                     >
                         {/* Border animation */}
+
                         <span
                             className="
-                    absolute inset-0
-                    rounded-full
-                    border-[3px] border-teal-300
-                    transition-all duration-300 ease-out
-                    group-hover:scale-110
-                    group-hover:-translate-y-0.5
-                    group-hover:shadow-[-3px_0_10px_rgba(45,212,191,0.45)]
-                "
+                                absolute inset-0
+                                rounded-full
+                                border-[3px] border-amber-400
+                                transition-all duration-300 ease-out
+                                group-hover:scale-110
+                                group-hover:-translate-y-0.5
+                                group-hover:shadow-[-3px_0_10px_rgba(251,191,36,0.35)]
+                            "
                         />
 
                         {/* Logo */}
+
                         <span
                             className="
-                    relative z-10
-                    transition-all duration-300 ease-out
-                    group-hover:-translate-y-0.5
-                    group-hover:scale-95
-                    group-hover:text-teal-200
-                    group-hover:drop-shadow-[-2px_0_5px_rgba(45,212,191,0.7)]
-                "
+                                relative z-10
+                                transition-all duration-300 ease-out
+                                group-hover:-translate-y-0.5
+                                group-hover:scale-95
+                                group-hover:text-amber-300
+                                group-hover:drop-shadow-[-2px_0_5px_rgba(251,191,36,0.55)]
+                            "
                         >
                             C
                         </span>
                     </Link>
 
                     {/* Navigation */}
+
                     <nav className="hidden md:block">
                         <ol className="flex items-center gap-5 font-mono text-xs lg:gap-7">
                             <li>
                                 <Link
                                     href="/#about"
-                                    className="text-slate-300 transition hover:text-teal-300"
+                                    className="text-zinc-400 transition hover:text-amber-400"
                                 >
-                                    <span className="text-teal-300">01.</span>{" "}
+                                    <span className="text-amber-400">01.</span>{" "}
                                     About
                                 </Link>
                             </li>
@@ -117,9 +122,9 @@ export default function PublicLayout({
                             <li>
                                 <Link
                                     href="/#experience"
-                                    className="text-slate-300 transition hover:text-teal-300"
+                                    className="text-zinc-400 transition hover:text-amber-400"
                                 >
-                                    <span className="text-teal-300">02.</span>{" "}
+                                    <span className="text-amber-400">02.</span>{" "}
                                     Experience
                                 </Link>
                             </li>
@@ -127,9 +132,9 @@ export default function PublicLayout({
                             <li>
                                 <Link
                                     href="/#work"
-                                    className="text-slate-300 transition hover:text-teal-300"
+                                    className="text-zinc-400 transition hover:text-amber-400"
                                 >
-                                    <span className="text-teal-300">03.</span>{" "}
+                                    <span className="text-amber-400">03.</span>{" "}
                                     Work
                                 </Link>
                             </li>
@@ -137,22 +142,11 @@ export default function PublicLayout({
                             <li>
                                 <Link
                                     href="/#contact"
-                                    className="text-slate-300 transition hover:text-teal-300"
+                                    className="text-zinc-400 transition hover:text-amber-400"
                                 >
-                                    <span className="text-teal-300">04.</span>{" "}
+                                    <span className="text-amber-400">04.</span>{" "}
                                     Contact
                                 </Link>
-                            </li>
-
-                            <li className="ml-2">
-                                <a
-                                    href="/cv.pdf"
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="inline-flex border border-teal-300 px-5 py-3 text-teal-300 transition hover:bg-teal-300/10"
-                                >
-                                    Resume
-                                </a>
                             </li>
                         </ol>
                     </nav>
@@ -168,11 +162,11 @@ export default function PublicLayout({
                     {/* GitHub */}
 
                     <a
-                        href="https://github.com"
+                        href="https://github.com/tranchien2105-dotcom"
                         target="_blank"
                         rel="noreferrer"
                         aria-label="GitHub"
-                        className="text-slate-400 transition hover:-translate-y-1 hover:text-teal-300"
+                        className="text-zinc-500 transition hover:-translate-y-1 hover:text-amber-400"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -197,7 +191,7 @@ export default function PublicLayout({
                         target="_blank"
                         rel="noreferrer"
                         aria-label="Instagram"
-                        className="text-slate-400 transition hover:-translate-y-1 hover:text-teal-300"
+                        className="text-zinc-500 transition hover:-translate-y-1 hover:text-amber-400"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -216,7 +210,6 @@ export default function PublicLayout({
                                 x="2"
                                 y="2"
                                 rx="5"
-                                ry="5"
                             />
 
                             <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
@@ -237,7 +230,7 @@ export default function PublicLayout({
                         target="_blank"
                         rel="noreferrer"
                         aria-label="Twitter"
-                        className="text-slate-400 transition hover:-translate-y-1 hover:text-teal-300"
+                        className="text-zinc-500 transition hover:-translate-y-1 hover:text-amber-400"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -261,7 +254,7 @@ export default function PublicLayout({
                         target="_blank"
                         rel="noreferrer"
                         aria-label="LinkedIn"
-                        className="text-slate-400 transition hover:-translate-y-1 hover:text-teal-300"
+                        className="text-zinc-500 transition hover:-translate-y-1 hover:text-amber-400"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -292,7 +285,7 @@ export default function PublicLayout({
                     <a
                         href="mailto:your.email@example.com"
                         aria-label="Email"
-                        className="text-slate-400 transition hover:-translate-y-1 hover:text-teal-300"
+                        className="text-zinc-500 transition hover:-translate-y-1 hover:text-amber-400"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -319,7 +312,7 @@ export default function PublicLayout({
 
                     {/* Vertical line */}
 
-                    <span className="mt-2 h-24 w-px bg-slate-500" />
+                    <span className="mt-2 h-24 w-px bg-zinc-700" />
                 </div>
             </aside>
 
@@ -330,8 +323,8 @@ export default function PublicLayout({
             <aside className="fixed bottom-0 right-0 z-40 hidden w-24 lg:block">
                 <div className="flex flex-col items-center">
                     <a
-                        href="mailto:your.email@example.com"
-                        className="mb-8 font-mono text-xs tracking-[0.2em] text-slate-400 transition hover:-translate-y-1 hover:text-teal-300"
+                        href="mailto:tranchien02@gmail.com"
+                        className="mb-8 font-mono text-xs tracking-[0.2em] text-zinc-500 transition hover:-translate-y-1 hover:text-amber-400"
                         style={{
                             writingMode: "vertical-rl",
                         }}
@@ -339,7 +332,7 @@ export default function PublicLayout({
                         tranchien02@gmail.com
                     </a>
 
-                    <span className="h-24 w-px bg-slate-500" />
+                    <span className="h-24 w-px bg-zinc-700" />
                 </div>
             </aside>
 

@@ -7,6 +7,7 @@ use App\Http\Requests\SyncProjectTechnologyRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
 class ProjectController extends Controller
 {
     /**
-     * Display a listing of the user's projects.
+     * Display a listing of the authenticated user's projects.
      */
     public function index(Request $request): JsonResponse
     {
@@ -43,7 +44,8 @@ class ProjectController extends Controller
         $data = $request->validated();
 
         if ($request->hasFile('cover_image')) {
-            $data['cover_image'] = $request->file('cover_image')
+            $data['cover_image'] = $request
+                ->file('cover_image')
                 ->store('projects/covers', 'public');
         }
 
@@ -59,7 +61,7 @@ class ProjectController extends Controller
     }
 
     /**
-     * Display the specified project.
+     * Display a specific project for the authenticated user.
      */
     public function show(
         Request $request,
@@ -73,6 +75,32 @@ class ProjectController extends Controller
             'links',
             'technologies',
         ]);
+
+        return response()->json([
+            'data' => new ProjectResource($project),
+        ]);
+    }
+
+    /**
+     * Display a public project from the default public portfolio.
+     *
+     * The default public user is currently Tran Minh Chien.
+     */
+    public function publicShow(string $slug): JsonResponse
+    {
+        $user = User::query()
+            ->where('username', 'tran-minh-chien')
+            ->firstOrFail();
+
+        $project = $user->projects()
+            ->where('slug', $slug)
+            ->with([
+                'features',
+                'images',
+                'links',
+                'technologies',
+            ])
+            ->firstOrFail();
 
         return response()->json([
             'data' => new ProjectResource($project),
@@ -97,7 +125,8 @@ class ProjectController extends Controller
                 );
             }
 
-            $data['cover_image'] = $request->file('cover_image')
+            $data['cover_image'] = $request
+                ->file('cover_image')
                 ->store('projects/covers', 'public');
         }
 
