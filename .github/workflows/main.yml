@@ -3,16 +3,79 @@ name: TeamFlow CI
 on:
   push:
     branches: [main]
+
   pull_request:
     branches: [main]
 
 jobs:
-  test:
+  laravel:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+
+        env:
+          POSTGRES_DB: teamflow_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+
+        ports:
+          - 5432:5432
+
+        options: >-
+          --health-cmd="pg_isready -U postgres -d teamflow_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      redis:
+        image: redis:7
+
+        ports:
+          - 6379:6379
+
+    defaults:
+      run:
+        working-directory: backend
+
     steps:
+      # 1. Lấy source code từ repository
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Test workflow
-        run: echo "TeamFlow CI is working!"
+      # 2. Cài PHP 8.3 và các extension cần thiết
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pgsql, pdo_pgsql, redis
+          coverage: none
+
+      # 3. Tạo .env cho CI
+      - name: Copy environment file
+        run: cp .env.example .env
+
+      # 4. Ghi cấu hình database test
+      - name: Configure environment
+        run: |
+          sed -i 's/^DB_DATABASE=.*/DB_DATABASE=teamflow_test/' .env
+          sed -i 's/^DB_USERNAME=.*/DB_USERNAME=postgres/' .env
+          sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=postgres/' .env
+
+      # 5. Cài tất cả Composer dependencies
+      #    Bao gồm cả require-dev => PHPUnit
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      # 6. Tạo APP_KEY
+      - name: Generate application key
+        run: php artisan key:generate
+
+      # 7. Chạy database migrations
+      - name: Run migrations
+        run: php artisan migrate --force
+
+      # 8. Chạy Laravel tests
+      - name: Run tests
+        run: php artisan test
