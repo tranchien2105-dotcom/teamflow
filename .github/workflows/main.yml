@@ -14,15 +14,12 @@ jobs:
     services:
       postgres:
         image: postgres:16
-
         env:
           POSTGRES_DB: teamflow_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-
         ports:
           - 5432:5432
-
         options: >-
           --health-cmd="pg_isready -U postgres -d teamflow_test"
           --health-interval=10s
@@ -31,7 +28,6 @@ jobs:
 
       redis:
         image: redis:7
-
         ports:
           - 6379:6379
 
@@ -40,23 +36,19 @@ jobs:
         working-directory: backend
 
     steps:
-      # 1. Checkout source code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Setup PHP 8.3
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: "8.3"
           extensions: mbstring, pgsql, pdo_pgsql, redis
           coverage: none
 
-      # 3. Create .env from .env.example
       - name: Copy environment file
         run: cp .env.example .env
 
-      # 4. Configure CI environment
       - name: Configure environment
         run: |
           sed -i 's/^DB_HOST=.*/DB_HOST=127.0.0.1/' .env
@@ -64,23 +56,44 @@ jobs:
           sed -i 's/^DB_DATABASE=.*/DB_DATABASE=teamflow_test/' .env
           sed -i 's/^DB_USERNAME=.*/DB_USERNAME=postgres/' .env
           sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=postgres/' .env
-
           sed -i 's/^REDIS_HOST=.*/REDIS_HOST=127.0.0.1/' .env
           sed -i 's/^REDIS_PORT=.*/REDIS_PORT=6379/' .env
 
-      # 5. Install Composer dependencies
-      #    Includes require-dev => PHPUnit
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist
 
-      # 6. Generate Laravel application key
-      - name: Generate application key
+      - name: Generate Laravel application key
         run: php artisan key:generate
 
-      # 7. Run database migrations
       - name: Run migrations
         run: php artisan migrate --force
 
-      # 8. Run Laravel tests
-      - name: Run tests
+      - name: Run Laravel tests
         run: php artisan test
+
+  nextjs:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: next-app
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: next-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Build Next.js
+        run: npm run build
