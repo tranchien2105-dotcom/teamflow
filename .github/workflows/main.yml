@@ -40,11 +40,11 @@ jobs:
         working-directory: backend
 
     steps:
-      # 1. Lấy source code từ repository
+      # 1. Checkout source code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Cài PHP 8.3 và các extension cần thiết
+      # 2. Setup PHP 8.3
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -52,30 +52,35 @@ jobs:
           extensions: mbstring, pgsql, pdo_pgsql, redis
           coverage: none
 
-      # 3. Tạo .env cho CI
+      # 3. Create .env from .env.example
       - name: Copy environment file
         run: cp .env.example .env
 
-      # 4. Ghi cấu hình database test
+      # 4. Configure CI environment
       - name: Configure environment
         run: |
+          sed -i 's/^DB_HOST=.*/DB_HOST=127.0.0.1/' .env
+          sed -i 's/^DB_PORT=.*/DB_PORT=5432/' .env
           sed -i 's/^DB_DATABASE=.*/DB_DATABASE=teamflow_test/' .env
           sed -i 's/^DB_USERNAME=.*/DB_USERNAME=postgres/' .env
           sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=postgres/' .env
 
-      # 5. Cài tất cả Composer dependencies
-      #    Bao gồm cả require-dev => PHPUnit
+          sed -i 's/^REDIS_HOST=.*/REDIS_HOST=127.0.0.1/' .env
+          sed -i 's/^REDIS_PORT=.*/REDIS_PORT=6379/' .env
+
+      # 5. Install Composer dependencies
+      #    Includes require-dev => PHPUnit
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist
 
-      # 6. Tạo APP_KEY
+      # 6. Generate Laravel application key
       - name: Generate application key
         run: php artisan key:generate
 
-      # 7. Chạy database migrations
+      # 7. Run database migrations
       - name: Run migrations
         run: php artisan migrate --force
 
-      # 8. Chạy Laravel tests
+      # 8. Run Laravel tests
       - name: Run tests
         run: php artisan test
