@@ -46,7 +46,7 @@ export default async function HomePage() {
 
             <PageLoader />
 
-            <main className="mx-auto max-w-5xl bg-[#111111] px-6 pb-24 sm:px-10 lg:px-12">
+            <main className="mx-auto max-w-6xl bg-[#111111] px-6 pb-24 sm:px-10 lg:px-12">
 
                 {/* =====================================================
                     HERO
@@ -420,7 +420,7 @@ export default async function HomePage() {
                                             className={`
                                                 grid
                                                 gap-8
-                                                lg:grid-cols-2
+                                                lg:grid-cols-[1.2fr_0.8fr]
                                                 lg:items-center
                                                 ${
                                                     index % 2 === 1
@@ -432,7 +432,7 @@ export default async function HomePage() {
 
                                             {/* PROJECT IMAGE */}
 
-                                            <div className="relative aspect-[16/10] overflow-hidden rounded">
+                                            <div className="relative aspect-[16/10] overflow-hidden rounded bg-[#1a1a1a] lg:aspect-[16/9]">
 
                                                 {projectImage ? (
                                                     <img
@@ -443,7 +443,7 @@ export default async function HomePage() {
                                                             inset-0
                                                             h-full
                                                             w-full
-                                                            object-cover
+                                                            object-contain
                                                             grayscale
                                                             transition
                                                             duration-500
@@ -508,16 +508,6 @@ export default async function HomePage() {
 
                     </div>
 
-                    <ScrollReveal delay={100}>
-                        <div className="mt-12">
-                            <Link
-                                href="/project"
-                                className="font-mono text-xs text-amber-400 transition hover:text-amber-300"
-                            >
-                                View all projects →
-                            </Link>
-                        </div>
-                    </ScrollReveal>
                 </section>
 
                 {/* =====================================================

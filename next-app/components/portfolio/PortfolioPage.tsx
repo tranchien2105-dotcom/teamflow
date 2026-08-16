@@ -39,7 +39,7 @@ export default function PortfolioPage({
     const technologies = portfolio.skills;
 
     return (
-        <main className="mx-auto max-w-5xl bg-[#0a192f] px-6 pb-24 sm:px-10 lg:px-12">
+        <main className="mx-auto max-w-6xl bg-[#0a192f] px-6 pb-24 sm:px-10 lg:px-12">
             {/* HERO */}
             <section className="flex min-h-[calc(100vh-5rem)] items-center py-24">
                 <div className="max-w-3xl">
@@ -243,20 +243,20 @@ export default function PortfolioPage({
                                 className="group block"
                             >
                                 <article
-                                    className={`grid gap-8 lg:grid-cols-2 lg:items-center ${
+                                    className={`grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center ${
                                         index % 2 === 1
                                             ? "lg:[&>div:first-child]:order-2"
                                             : ""
                                     }`}
                                 >
-                                    <div className="relative aspect-[16/10] overflow-hidden rounded">
+                                    <div className="relative aspect-[16/10] overflow-hidden rounded bg-[#112240] lg:aspect-[16/9]">
                                         {projectImage ? (
                                             <Image
                                                 src={projectImage}
                                                 alt={project.title}
                                                 fill
-                                                className="object-cover grayscale transition duration-500 group-hover:scale-105 group-hover:grayscale-0"
-                                                sizes="(max-width: 1024px) 100vw, 50vw"
+                                                className="object-contain grayscale transition duration-500 group-hover:scale-105 group-hover:grayscale-0"
+                                                sizes="(max-width: 1024px) 100vw, 60vw"
                                             />
                                         ) : (
                                             <div className="flex h-full items-center justify-center bg-[#112240] font-mono text-xs text-slate-500">
@@ -301,14 +301,6 @@ export default function PortfolioPage({
                     })}
                 </div>
 
-                <div className="mt-12">
-                    <Link
-                        href="/project"
-                        className="font-mono text-xs text-teal-300 transition hover:text-teal-200"
-                    >
-                        View all projects →
-                    </Link>
-                </div>
             </section>
 
             {/* TECHNOLOGIES */}
